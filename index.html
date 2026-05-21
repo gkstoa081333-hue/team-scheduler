@@ -5,892 +5,705 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>팀 스케줄러</title>
+<meta name="theme-color" content="#0A0A0F">
+<title>팀 스케줄러 — 공주시정신건강복지센터</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ══ Firebase SDK (v10 modular) ══ -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app":      "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+    "firebase/database": "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"
+  }
+}
+</script>
+
 <style>
-/* ═══════════════════════════════════════
-   Apple Design System Tokens
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   Design Tokens
+══════════════════════════════════════════ */
 :root {
-  /* Brand & Accent */
-  --primary: #0066cc;
-  --primary-focus: #0071e3;
-  --primary-on-dark: #2997ff;
+  --bg:           #0A0A0F;
+  --bg2:          #111118;
+  --bg3:          #18181F;
+  --bg4:          #1E1E28;
+  --surface:      #22222E;
+  --surface2:     #2A2A38;
+  --border:       rgba(255,255,255,0.07);
+  --border2:      rgba(255,255,255,0.12);
 
-  /* Surface */
-  --canvas: #ffffff;
-  --canvas-parchment: #f5f5f7;
-  --surface-pearl: #fafafc;
-  --surface-tile-1: #272729;
-  --surface-tile-2: #2a2a2c;
-  --surface-black: #000000;
-  --surface-chip: rgba(210,210,215,0.64);
+  --accent:       #4F8EF7;
+  --accent-dim:   rgba(79,142,247,0.15);
+  --accent-glow:  rgba(79,142,247,0.35);
 
-  /* Text */
-  --ink: #1d1d1f;
-  --ink-muted-80: #333333;
-  --ink-muted-48: #7a7a7a;
-  --on-dark: #ffffff;
-  --body-muted: #cccccc;
+  --text:         #F0F0F8;
+  --text-muted:   #8888A0;
+  --text-faint:   #44445A;
 
-  /* Hairlines */
-  --hairline: #e0e0e0;
-  --divider-soft: rgba(0,0,0,0.04);
+  --danger:       #FF5555;
+  --danger-dim:   rgba(255,85,85,0.15);
+  --success:      #4ADE80;
+  --warning:      #FFB347;
 
-  /* Semantic */
-  --danger: #ff3b30;
-  --success: #30d158;
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  16px;
+  --r-xl:  22px;
+  --r-pill:9999px;
 
-  /* Radius */
-  --r-sm: 8px;
-  --r-md: 11px;
-  --r-lg: 18px;
-  --r-pill: 9999px;
+  --sb-w:  230px;
+  --nav-h: 54px;
+  --font:  'Noto Sans KR', system-ui, sans-serif;
+  --sab:   env(safe-area-inset-bottom, 0px);
+  --sat:   env(safe-area-inset-top, 0px);
 
-  /* Spacing */
-  --sp-xs: 8px;
-  --sp-sm: 12px;
-  --sp-md: 17px;
-  --sp-lg: 24px;
-  --sp-xl: 32px;
-  --sp-section: 80px;
-
-  /* Layout */
-  --sb: 240px;
-  --nav-h: 44px;
-  --subnav-h: 52px;
-  --sab: env(safe-area-inset-bottom, 0px);
-  --sat: env(safe-area-inset-top, 0px);
-
-  /* Typography */
-  --font: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
-
-  /* Shadow — product only */
-  --product-shadow: rgba(0,0,0,0.22) 3px 5px 30px 0;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.6);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,0.8);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--canvas-parchment); color: var(--ink); font-size: 17px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font-family: var(--font); cursor: pointer; }
+input, select, textarea { cursor: text; }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    App Layout
-═══════════════════════════════════════ */
+══════════════════════════════════════════ */
 #app { display: flex; height: 100dvh; overflow: hidden; }
 
-/* ═══════════════════════════════════════
-   Global Nav (Apple Black Bar)
-═══════════════════════════════════════ */
-#global-nav {
-  display: none; /* handled within sidebar on this layout */
-}
-
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    Sidebar
-═══════════════════════════════════════ */
+══════════════════════════════════════════ */
 #sidebar {
-  width: var(--sb);
+  width: var(--sb-w);
   flex-shrink: 0;
-  background: var(--surface-black);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
-  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
   z-index: 150;
 }
 
-#sb-head {
-  padding: 16px 20px;
-  padding-top: calc(var(--sat) + 16px);
-  background: var(--surface-black);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+#sb-brand {
+  padding: 20px 18px 14px;
+  padding-top: calc(var(--sat) + 20px);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-#sb-head h1 {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--on-dark);
-  letter-spacing: -0.12px;
-  opacity: 0.85;
-  margin-bottom: 2px;
-}
-#sb-head p {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--on-dark);
-  letter-spacing: -0.224px;
-}
-
-#sb-body { flex: 1; overflow-y: auto; padding: var(--sp-sm) var(--sp-sm); -webkit-overflow-scrolling: touch; }
-#sb-foot { padding: var(--sp-sm); border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-
-.sec-ttl {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.5px;
+#sb-brand .org {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  margin: 16px 8px 6px;
+  margin-bottom: 3px;
 }
-.sec-ttl:first-child { margin-top: 8px; }
-
-.mb-item {
-  display: flex;
+#sb-brand .app-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.firebase-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  margin-bottom: 2px;
-  transition: background .15s;
-}
-.mb-item:active { background: rgba(255,255,255,0.08); }
-.mb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.mb-name { font-size: 14px; font-weight: 400; color: var(--on-dark); letter-spacing: -0.224px; flex: 1; }
-.mb-cnt {
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.1);
+  gap: 4px;
+  font-size: 10px;
+  color: var(--success);
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.2);
   border-radius: var(--r-pill);
-  padding: 1px 7px;
+  padding: 2px 7px;
+  margin-top: 6px;
 }
-.mb-item.dim { opacity: .3; }
+.firebase-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-.cat-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  margin-bottom: 2px;
+#sb-body { flex: 1; overflow-y: auto; padding: 10px 10px; -webkit-overflow-scrolling: touch; }
+#sb-foot { padding: 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+.sb-section { font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.8px; text-transform: uppercase; margin: 14px 8px 5px; }
+.sb-section:first-child { margin-top: 6px; }
+
+/* Member items */
+.mb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; border-radius: var(--r-md);
+  cursor: pointer; margin-bottom: 1px;
+  transition: background .15s;
+  user-select: none;
 }
-.cat-item:active { background: rgba(255,255,255,0.08); }
+.mb-item:hover { background: rgba(255,255,255,0.04); }
+.mb-item:active { background: rgba(255,255,255,0.07); }
+.mb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.mb-name { font-size: 13px; font-weight: 400; color: var(--text); flex: 1; }
+.mb-cnt { font-size: 11px; color: var(--text-faint); background: var(--surface); border-radius: var(--r-pill); padding: 1px 6px; }
+.mb-item.dim .mb-name { color: var(--text-faint); }
+.mb-item.dim .mb-dot { opacity: 0.3; }
+
+/* Category items */
+.cat-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: var(--r-md);
+  cursor: pointer; margin-bottom: 1px;
+  transition: background .15s;
+  user-select: none;
+}
+.cat-item:hover { background: rgba(255,255,255,0.04); }
+.cat-item:active { background: rgba(255,255,255,0.07); }
 .cat-dot { width: 6px; height: 6px; border-radius: 2px; flex-shrink: 0; }
-.cat-name { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.75); letter-spacing: -0.12px; flex: 1; }
-.cat-item.dim { opacity: .3; }
+.cat-name { font-size: 12px; font-weight: 400; color: var(--text-muted); flex: 1; }
+.cat-item.dim .cat-name { color: var(--text-faint); }
+.cat-item.dim .cat-dot { opacity: 0.25; }
 
 /* Sidebar buttons */
 .sb-btn {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: var(--r-sm);
-  border: 1px solid rgba(255,255,255,0.15);
-  background: transparent;
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.75);
-  letter-spacing: -0.224px;
-  margin-bottom: 6px;
-  text-align: left;
-  transition: background .15s;
+  width: 100%; padding: 8px 10px;
+  border-radius: var(--r-md); border: 1px solid var(--border2);
+  background: transparent; font-size: 12px; font-weight: 400;
+  color: var(--text-muted); text-align: left;
+  margin-bottom: 5px; transition: all .15s;
 }
+.sb-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .sb-btn:active { background: rgba(255,255,255,0.08); }
 
-/* ═══════════════════════════════════════
-   Main Content
-═══════════════════════════════════════ */
-#main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100dvh; overflow: hidden; background: var(--canvas); }
+/* ══════════════════════════════════════════
+   Main
+══════════════════════════════════════════ */
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100dvh; overflow: hidden; background: var(--bg); }
 
-/* ═══════════════════════════════════════
-   Sub-Nav (Frosted / Toolbar)
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   Toolbar
+══════════════════════════════════════════ */
 #toolbar {
-  height: var(--subnav-h);
-  min-height: var(--subnav-h);
+  height: var(--nav-h);
+  min-height: var(--nav-h);
   flex-shrink: 0;
-  background: rgba(245,245,247,0.8);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-xs);
-  padding: 0 var(--sp-md);
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: saturate(150%) blur(24px);
+  -webkit-backdrop-filter: saturate(150%) blur(24px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px;
 }
 
 #menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  color: var(--ink);
-  font-size: 18px;
-  line-height: 1;
-  border-radius: var(--r-sm);
+  display: none; background: none; border: none;
+  width: 32px; height: 32px; border-radius: var(--r-md);
+  font-size: 18px; color: var(--text-muted);
+  align-items: center; justify-content: center;
 }
+#menu-btn:hover { background: var(--surface); color: var(--text); }
 
-/* Navigation arrows */
-.nav-btn {
-  background: none;
-  border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--r-sm);
-  font-size: 18px;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#nav-center { display: flex; align-items: center; gap: 3px; flex: 1; justify-content: center; }
+
+.nav-arrow {
+  background: none; border: none;
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: 18px; color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, transform .1s;
+}
+.nav-arrow:hover { background: var(--accent-dim); }
+.nav-arrow:active { transform: scale(0.88); }
+
+#ym-wrap { display: flex; align-items: center; gap: 0; }
+.ym-select {
+  border: none; background: transparent;
+  font-family: var(--font); font-size: 15px; font-weight: 700;
+  color: var(--text); cursor: pointer; appearance: none; -webkit-appearance: none;
+  padding: 5px 6px; border-radius: var(--r-md);
   transition: background .15s;
 }
-.nav-btn:active { background: var(--canvas-parchment); }
+.ym-select:focus { outline: none; background: var(--surface); }
+.ym-select:hover { background: var(--surface); }
+.ym-select option { background: var(--bg3); }
 
-/* Today pill */
+#week-label {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  padding: 0 6px; white-space: nowrap;
+}
+
+#toolbar-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
 #today-btn {
-  background: transparent;
-  border: none;
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.224px;
-  padding: 5px 10px;
-  border-radius: var(--r-pill);
+  background: transparent; border: none;
+  color: var(--accent); font-size: 13px; font-weight: 500;
+  padding: 5px 10px; border-radius: var(--r-pill);
   transition: background .15s;
 }
-#today-btn:active { background: rgba(0,102,204,0.08); }
+#today-btn:hover { background: var(--accent-dim); }
 
-#cur-label {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.374px;
-  flex: 1;
-  text-align: center;
-  color: var(--ink);
-}
-
-/* View toggle */
 .vt {
-  display: flex;
-  background: rgba(0,0,0,0.06);
-  border-radius: var(--r-pill);
-  padding: 2px;
-  gap: 1px;
+  display: flex; background: var(--surface); border-radius: var(--r-pill);
+  padding: 2px; gap: 1px;
 }
 .vt-btn {
-  padding: 4px 12px;
-  border-radius: var(--r-pill);
-  border: none;
-  background: transparent;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-muted-48);
-  letter-spacing: -0.12px;
-  transition: all .15s;
+  padding: 4px 11px; border-radius: var(--r-pill); border: none;
+  background: transparent; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); transition: all .15s;
 }
-.vt-btn.on {
-  background: var(--canvas);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+.vt-btn.on { background: var(--surface2); color: var(--text); box-shadow: var(--shadow-sm); }
 
-/* Primary CTA — pill */
 #add-btn {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--r-pill);
-  padding: 7px 16px;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.224px;
-  white-space: nowrap;
-  transition: transform .15s;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: var(--r-pill); padding: 7px 14px;
+  font-size: 13px; font-weight: 600; letter-spacing: -0.1px;
+  transition: all .15s; box-shadow: 0 0 12px var(--accent-glow);
 }
-#add-btn:active { transform: scale(0.95); }
+#add-btn:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-glow); }
+#add-btn:active { transform: scale(0.94); }
 
 #search-btn {
-  background: none;
-  border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--r-sm);
-  font-size: 16px;
-  color: var(--primary);
-  display: none;
+  display: none; background: none; border: none;
+  width: 30px; height: 30px; border-radius: var(--r-md);
+  font-size: 16px; color: var(--accent);
+  align-items: center; justify-content: center;
 }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    Calendar Area
-═══════════════════════════════════════ */
-#cal { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; background: var(--canvas); }
+══════════════════════════════════════════ */
+#cal { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 
-/* ═══════════════════════════════════════
-   Month View
-═══════════════════════════════════════ */
+/* ── Month View ── */
 #mv { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .dow-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  flex-shrink: 0;
-  background: var(--canvas);
-  border-bottom: 1px solid var(--hairline);
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  flex-shrink: 0; background: var(--bg2);
+  border-bottom: 1px solid var(--border);
 }
 .dow-cell {
-  text-align: center;
-  padding: 7px 2px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-muted-48);
-  letter-spacing: -0.12px;
+  text-align: center; padding: 8px 2px;
+  font-size: 11px; font-weight: 600; color: var(--text-faint);
+  letter-spacing: 0.4px; text-transform: uppercase;
 }
 .dow-cell:first-child { color: var(--danger); }
-.dow-cell:last-child { color: #3B82F6; }
+.dow-cell:last-child { color: var(--accent); }
 
 .month-grid {
-  flex: 1;
-  display: grid;
+  flex: 1; display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: minmax(72px, 1fr);
-  overflow: hidden;
-  min-height: 0;
+  grid-auto-rows: minmax(68px, 1fr);
+  overflow: hidden; min-height: 0;
 }
 
 .dc {
-  border-right: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-  padding: 6px 5px 4px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--canvas);
-  cursor: pointer;
-  touch-action: manipulation;
-  min-height: 0;
-  transition: background .1s;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 5px 4px; display: flex; flex-direction: column;
+  overflow: hidden; background: var(--bg); cursor: pointer;
+  touch-action: manipulation; min-height: 0;
+  transition: background .12s;
 }
-.dc:active { background: var(--canvas-parchment); }
+.dc:hover { background: var(--bg3); }
+.dc:active { background: var(--bg4); }
 .dc:nth-child(7n) { border-right: none; }
-.dc.other { background: var(--canvas-parchment); }
-.dc.other .dn { color: var(--ink-muted-48); }
+.dc.other { background: var(--bg2); }
+.dc.other .dn { color: var(--text-faint); }
 .dc.sun .dn { color: var(--danger); }
-.dc.sat .dn { color: #3B82F6; }
+.dc.sat .dn { color: var(--accent); }
 
 .dn {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1;
-  margin-bottom: 4px;
-  flex-shrink: 0;
-  color: var(--ink);
-  letter-spacing: -0.12px;
+  font-size: 12px; font-weight: 400; line-height: 1;
+  margin-bottom: 4px; flex-shrink: 0; color: var(--text-muted);
 }
 .dn-today {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 12px; font-weight: 700;
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .ev-chip {
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 2px 5px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  flex-shrink: 0;
+  font-size: 10px; font-weight: 600;
+  border-radius: 4px; padding: 2px 5px;
+  margin-bottom: 2px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; flex-shrink: 0;
   touch-action: manipulation;
-  letter-spacing: -0.08px;
+  transition: filter .12s;
 }
+.ev-chip:hover { filter: brightness(1.2); }
 .more-lbl {
-  font-size: 10px;
-  color: var(--primary);
-  flex-shrink: 0;
-  padding: 0 3px;
-  font-weight: 600;
+  font-size: 10px; color: var(--accent); flex-shrink: 0;
+  padding: 0 3px; font-weight: 600;
 }
 
-/* ═══════════════════════════════════════
-   Week View
-═══════════════════════════════════════ */
+/* ── Week View ── */
 #wv { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .wk-head {
-  display: flex;
-  background: var(--canvas);
-  border-bottom: 1px solid var(--hairline);
-  flex-shrink: 0;
+  display: flex; background: var(--bg2);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 .wk-gut { width: 44px; flex-shrink: 0; }
-.wk-dc { flex: 1; border-left: 1px solid var(--hairline); text-align: center; padding: 7px 2px; }
-.wk-dc .wdn { font-size: 11px; font-weight: 600; color: var(--ink-muted-48); letter-spacing: 0.3px; text-transform: uppercase; }
-.wk-dc .wdd { font-size: 16px; font-weight: 600; margin-top: 2px; color: var(--ink); letter-spacing: -0.374px; }
+.wk-dc { flex: 1; border-left: 1px solid var(--border); text-align: center; padding: 7px 2px; }
+.wk-dc .wdn { font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.5px; text-transform: uppercase; }
+.wk-dc .wdd { font-size: 16px; font-weight: 700; margin-top: 2px; color: var(--text-muted); }
 .wk-dc.today .wdd {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--primary); color: #fff;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 .wk-dc.sun .wdd { color: var(--danger); }
-.wk-dc.sat .wdd { color: #3B82F6; }
+.wk-dc.sat .wdd { color: var(--accent); }
 
 .ad-row {
-  display: flex;
-  background: var(--canvas-parchment);
-  border-bottom: 1px solid var(--hairline);
-  flex-shrink: 0;
-  min-height: 24px;
+  display: flex; background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; min-height: 24px;
 }
 .ad-gut {
-  width: 44px;
-  font-size: 10px;
-  color: var(--ink-muted-48);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 6px;
-  flex-shrink: 0;
-  letter-spacing: -0.08px;
+  width: 44px; font-size: 9px; color: var(--text-faint);
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 6px; flex-shrink: 0;
 }
 .ad-cols { flex: 1; display: flex; }
-.ad-col { flex: 1; padding: 2px 3px; border-left: 1px solid var(--hairline); display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.ad-col { flex: 1; padding: 2px 3px; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
 .ad-chip {
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 2px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  touch-action: manipulation;
+  font-size: 10px; font-weight: 600; border-radius: 4px;
+  padding: 2px 5px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; cursor: pointer;
 }
 
 .wk-body { flex: 1; overflow-y: auto; display: flex; min-height: 0; -webkit-overflow-scrolling: touch; }
 .wk-tcol { width: 44px; flex-shrink: 0; position: relative; }
 .t-lbl {
-  position: absolute;
-  right: 6px;
-  font-size: 10px;
-  color: var(--ink-muted-48);
-  transform: translateY(-50%);
-  line-height: 1;
-  white-space: nowrap;
-  letter-spacing: -0.08px;
+  position: absolute; right: 6px; font-size: 9px;
+  color: var(--text-faint); transform: translateY(-50%);
+  line-height: 1; white-space: nowrap;
 }
 .wk-days { flex: 1; display: flex; position: relative; }
-.wk-lane { flex: 1; border-left: 1px solid var(--hairline); position: relative; }
-.wk-lane.today-bg { background: rgba(0,102,204,0.03); }
-.h-line { position: absolute; left: 0; right: 0; border-top: 1px solid var(--hairline); pointer-events: none; }
-.h-half { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--hairline); opacity: .5; pointer-events: none; }
-.now-line { position: absolute; left: 0; right: 0; border-top: 2px solid var(--primary); pointer-events: none; z-index: 5; }
-.now-dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+.wk-lane { flex: 1; border-left: 1px solid var(--border); position: relative; }
+.wk-lane.today-bg { background: rgba(79,142,247,0.03); }
+.h-line { position: absolute; left: 0; right: 0; border-top: 1px solid var(--border); pointer-events: none; }
+.h-half { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,0.03); pointer-events: none; }
+.now-line { position: absolute; left: 0; right: 0; border-top: 2px solid var(--accent); pointer-events: none; z-index: 5; }
+.now-dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
 
 .wk-ev {
-  position: absolute;
-  border-radius: 6px;
-  padding: 3px 6px;
-  font-size: 11px;
-  font-weight: 600;
-  overflow: hidden;
-  cursor: pointer;
-  left: 2px; right: 2px;
-  z-index: 3;
-  border-left: 3px solid rgba(0,0,0,0.15);
-  touch-action: manipulation;
-  letter-spacing: -0.08px;
-  transition: transform .1s;
+  position: absolute; border-radius: 6px;
+  padding: 3px 6px; font-size: 11px; font-weight: 600;
+  overflow: hidden; cursor: pointer; left: 2px; right: 2px; z-index: 3;
+  border-left: 3px solid rgba(0,0,0,0.2);
+  touch-action: manipulation; transition: filter .1s, transform .1s;
 }
+.wk-ev:hover { filter: brightness(1.15); transform: translateX(1px); }
 .wk-ev:active { transform: scale(0.97); }
 .wk-ev-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wk-ev-time { font-size: 10px; opacity: .75; font-weight: 400; }
+.wk-ev-time { font-size: 9px; opacity: .7; font-weight: 400; }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    Event Popup
-═══════════════════════════════════════ */
+══════════════════════════════════════════ */
 #popup {
-  position: fixed;
-  background: var(--canvas);
-  border-radius: var(--r-lg);
-  box-shadow: var(--product-shadow);
-  width: 296px;
-  z-index: 300;
-  display: none;
-  border: 1px solid var(--hairline);
-  overflow: hidden;
+  position: fixed; background: var(--bg3);
+  border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
+  width: 290px; z-index: 300; display: none;
+  border: 1px solid var(--border2); overflow: hidden;
 }
-#popup.on { display: block; }
-.pp-bar { height: 4px; }
-.pp-body { padding: var(--sp-md); }
-.pp-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--ink); letter-spacing: -0.374px; }
-.pp-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--ink-muted-80);
-  margin-top: 5px;
-  letter-spacing: -0.12px;
-}
-.pp-icon { font-size: 13px; flex-shrink: 0; line-height: 1.4; }
+#popup.on { display: block; animation: popIn .15s ease; }
+@keyframes popIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+.pp-bar { height: 3px; }
+.pp-body { padding: 14px 16px; }
+.pp-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.pp-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+.pp-icon { font-size: 12px; flex-shrink: 0; line-height: 1.5; }
 .pp-acts {
-  display: flex;
-  gap: 6px;
-  padding: 10px var(--sp-md);
-  border-top: 1px solid var(--hairline);
-  background: var(--canvas-parchment);
+  display: flex; gap: 6px; padding: 10px 14px;
+  border-top: 1px solid var(--border); background: var(--bg2);
 }
 .pp-btn {
-  flex: 1;
-  padding: 7px;
-  border-radius: var(--r-sm);
-  font-size: 13px;
-  font-weight: 600;
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
-  color: var(--ink-muted-80);
-  touch-action: manipulation;
-  letter-spacing: -0.12px;
-  transition: transform .1s;
+  flex: 1; padding: 7px; border-radius: var(--r-md);
+  font-size: 12px; font-weight: 600; border: 1px solid var(--border2);
+  background: var(--surface); color: var(--text-muted);
+  transition: all .12s;
 }
-.pp-btn:active { transform: scale(0.95); }
-.pp-edit { color: var(--primary); border-color: rgba(0,102,204,0.2); background: rgba(0,102,204,0.05); }
-.pp-del { color: var(--danger); border-color: rgba(255,59,48,0.2); background: rgba(255,59,48,0.05); }
+.pp-btn:hover { background: var(--surface2); color: var(--text); }
+.pp-edit { color: var(--accent); border-color: rgba(79,142,247,0.25); background: var(--accent-dim); }
+.pp-del { color: var(--danger); border-color: rgba(255,85,85,0.2); background: var(--danger-dim); }
 
-/* ═══════════════════════════════════════
-   Modal Overlay & Sheet
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   Modal / Sheet
+══════════════════════════════════════════ */
 .ov {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 200;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  display: none; align-items: flex-end; justify-content: center;
+  z-index: 200; backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .ov.on { display: flex; }
 @media(min-width:641px) { .ov { align-items: center; padding: 20px; } }
 
 .modal {
-  background: var(--canvas);
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  max-height: 92dvh;
-  overflow: hidden;
+  background: var(--bg3); border-radius: 22px 22px 0 0;
+  width: 100%; max-width: 460px; display: flex; flex-direction: column;
+  max-height: 92dvh; overflow: hidden;
+  border: 1px solid var(--border2); border-bottom: none;
+  animation: slideUp .25s cubic-bezier(.4,0,.2,1);
 }
-@media(min-width:641px) { .modal { border-radius: var(--r-lg); max-height: 88vh; } }
+@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+@media(min-width:641px) { .modal { border-radius: var(--r-xl); border: 1px solid var(--border2); max-height: 88vh; animation: popIn .2s ease; } }
 
 .mh {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px var(--sp-lg);
-  border-bottom: 1px solid var(--hairline);
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
-.mh h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.374px; color: var(--ink); }
+.mh h3 { font-size: 16px; font-weight: 700; color: var(--text); }
 .mc-btn {
-  background: var(--canvas-parchment);
-  border: none;
-  border-radius: 50%;
-  width: 30px; height: 30px;
-  font-size: 14px;
-  color: var(--ink-muted-48);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform .1s;
+  background: var(--surface); border: none; border-radius: 50%;
+  width: 28px; height: 28px; font-size: 13px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; transition: all .12s;
 }
-.mc-btn:active { transform: scale(0.9); }
+.mc-btn:hover { background: var(--surface2); color: var(--text); }
 
-.mb { padding: var(--sp-md) var(--sp-lg); overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: var(--sp-sm); -webkit-overflow-scrolling: touch; }
-.mf { padding: 14px var(--sp-lg); border-top: 1px solid var(--hairline); display: flex; gap: 8px; flex-shrink: 0; background: var(--canvas); }
+.mb { padding: 14px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+.mf {
+  padding: 12px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; flex-shrink: 0; background: var(--bg2);
+}
 
-/* Form Fields */
+/* Form */
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; font-weight: 600; color: var(--ink-muted-48); letter-spacing: -0.12px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.3px; text-transform: uppercase; }
 .field input, .field select, .field textarea {
-  padding: 10px 14px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--ink);
-  background: var(--canvas-parchment);
-  letter-spacing: -0.374px;
-  transition: border-color .15s, background .15s;
-  appearance: none;
-  -webkit-appearance: none;
+  padding: 10px 13px; border: 1px solid var(--border2);
+  border-radius: var(--r-md); font-size: 14px; font-weight: 400;
+  color: var(--text); background: var(--surface);
+  transition: border-color .15s, box-shadow .15s; appearance: none; -webkit-appearance: none;
 }
 .field input:focus, .field select:focus, .field textarea:focus {
-  outline: none;
-  border-color: var(--primary-focus);
-  background: var(--canvas);
-  box-shadow: 0 0 0 3px rgba(0,113,227,0.12);
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
-.field textarea { resize: vertical; min-height: 70px; cursor: text; }
+.field select option { background: var(--bg3); }
+.field textarea { resize: vertical; min-height: 64px; cursor: text; }
 
-.fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-xs); }
+.fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .chk-row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-xs);
-  padding: 8px 0;
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--ink);
-  cursor: pointer;
-  letter-spacing: -0.374px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; font-size: 14px; color: var(--text); cursor: pointer;
 }
-.chk-row input { width: 18px; height: 18px; accent-color: var(--primary); border-radius: 4px; }
+.chk-row input { width: 16px; height: 16px; accent-color: var(--accent); }
 
 /* Buttons */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 11px 18px;
-  border-radius: var(--r-pill);
-  font-size: 15px;
-  font-weight: 400;
-  border: 1px solid transparent;
-  touch-action: manipulation;
-  letter-spacing: -0.374px;
-  transition: transform .1s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 10px 18px; border-radius: var(--r-pill);
+  font-size: 14px; font-weight: 600; border: 1px solid transparent;
+  touch-action: manipulation; transition: all .12s;
 }
 .btn:active { transform: scale(0.95); }
-.btn-p { background: var(--primary); color: #fff; }
-.btn-o { background: var(--canvas-parchment); color: var(--ink); border-color: var(--hairline); }
-.btn-d { background: rgba(255,59,48,0.08); color: var(--danger); border-color: rgba(255,59,48,0.2); }
+.btn-p { background: var(--accent); color: #fff; box-shadow: 0 0 12px var(--accent-glow); }
+.btn-p:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-glow); }
+.btn-o { background: var(--surface); color: var(--text-muted); border-color: var(--border2); }
+.btn-o:hover { background: var(--surface2); color: var(--text); }
+.btn-d { background: var(--danger-dim); color: var(--danger); border-color: rgba(255,85,85,0.25); }
 .btn-f { width: 100%; border-radius: var(--r-pill); }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    Search Overlay
-═══════════════════════════════════════ */
+══════════════════════════════════════════ */
 #search-ov {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 400;
-  display: none;
-  background: rgba(245,245,247,0.95);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid var(--hairline);
-  padding: 10px var(--sp-sm);
-  padding-top: calc(var(--sat) + 10px);
-  align-items: center;
-  gap: var(--sp-xs);
+  position: fixed; top: 0; left: 0; right: 0; z-index: 400; display: none;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: saturate(150%) blur(24px);
+  -webkit-backdrop-filter: saturate(150%) blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px; padding-top: calc(var(--sat) + 10px);
+  align-items: center; gap: 8px;
 }
 #search-ov.on { display: flex; }
 #search-ov input {
-  flex: 1;
-  padding: 10px 16px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  font-size: 15px;
-  letter-spacing: -0.374px;
-  outline: none;
-  background: var(--canvas);
+  flex: 1; padding: 9px 14px; border: 1px solid var(--border2);
+  border-radius: var(--r-pill); font-size: 14px; outline: none;
+  background: var(--surface); color: var(--text);
 }
-#search-ov input:focus { border-color: var(--primary-focus); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
-#search-cancel {
-  background: none;
-  border: none;
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--primary);
-  padding: 6px 8px;
-  white-space: nowrap;
-  letter-spacing: -0.374px;
-}
+#search-ov input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+#search-ov input::placeholder { color: var(--text-faint); }
+#search-cancel { background: none; border: none; font-size: 14px; font-weight: 500; color: var(--accent); padding: 6px 8px; white-space: nowrap; }
 
-/* ═══════════════════════════════════════
-   Sync Toast
-═══════════════════════════════════════ */
-#sync {
-  position: fixed;
-  bottom: calc(var(--sab) + 16px);
-  right: 16px;
-  background: var(--surface-tile-1);
-  color: var(--on-dark);
-  border-radius: var(--r-pill);
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: -0.12px;
-  opacity: 0;
-  transition: opacity .3s;
-  z-index: 100;
-  pointer-events: none;
+/* ══════════════════════════════════════════
+   Toast
+══════════════════════════════════════════ */
+#toast {
+  position: fixed; bottom: calc(var(--sab) + 16px); right: 16px;
+  border-radius: var(--r-pill); padding: 7px 14px;
+  font-size: 12px; font-weight: 500; opacity: 0;
+  transition: opacity .3s, transform .3s; z-index: 500;
+  pointer-events: none; transform: translateY(8px);
 }
-#sync.on { opacity: 1; }
+#toast.on { opacity: 1; transform: translateY(0); }
+#toast.ok { background: rgba(74,222,128,0.15); color: var(--success); border: 1px solid rgba(74,222,128,0.25); }
+#toast.err { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,85,85,0.25); }
 
-/* ═══════════════════════════════════════
-   Color Swatches
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   Loading Overlay
+══════════════════════════════════════════ */
+#loading {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; z-index: 9999;
+}
+#loading .spin {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--surface2);
+  border-top-color: var(--accent);
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+#loading p { font-size: 14px; color: var(--text-muted); }
+#loading.hidden { display: none; }
+
+/* ══════════════════════════════════════════
+   Firebase Config Screen
+══════════════════════════════════════════ */
+#config-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9998; padding: 24px;
+}
+#config-screen.hidden { display: none; }
+.config-card {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r-xl); padding: 28px; width: 100%; max-width: 440px;
+  box-shadow: var(--shadow-lg);
+}
+.config-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.config-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+.config-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.config-field label { font-size: 11px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.3px; text-transform: uppercase; }
+.config-field input {
+  padding: 9px 12px; border: 1px solid var(--border2);
+  border-radius: var(--r-md); font-size: 13px;
+  color: var(--text); background: var(--surface);
+  transition: border-color .15s;
+}
+.config-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.config-field input::placeholder { color: var(--text-faint); }
+.config-hint { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+.connect-btn {
+  width: 100%; margin-top: 16px; padding: 12px;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: var(--r-pill); font-size: 15px; font-weight: 700;
+  box-shadow: 0 0 16px var(--accent-glow);
+  transition: all .15s;
+}
+.connect-btn:hover { filter: brightness(1.1); }
+.config-reset { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 12px; cursor: pointer; text-decoration: underline; }
+
+/* ══════════════════════════════════════════
+   Swatches
+══════════════════════════════════════════ */
 .swatches { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
 .sw {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2.5px solid transparent;
-  transition: all .15s;
-  touch-action: manipulation;
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent; transition: all .15s;
 }
-.sw.on { border-color: #fff; box-shadow: 0 0 0 2px var(--ink); }
+.sw.on { border-color: #fff; box-shadow: 0 0 0 2px var(--surface2); }
 
-/* ═══════════════════════════════════════
-   Print
-═══════════════════════════════════════ */
-@media print {
-  #sidebar, #toolbar, #popup, #sync, #search-ov { display: none !important; }
-  #main, #cal, #mv, .month-grid { overflow: visible !important; height: auto !important; }
-  .dc { min-height: 70px; page-break-inside: avoid; }
-  body { background: #fff; }
-  #app { display: block; }
-}
-
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    Mobile
-═══════════════════════════════════════ */
+══════════════════════════════════════════ */
 @media(max-width:640px) {
-  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
-  #sidebar.open { transform: translateX(0); box-shadow: var(--product-shadow); }
-  #sb-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 140; }
+  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-102%); }
+  #sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  #sb-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 140; }
   #sb-ov.on { display: block; }
-  #menu-btn { display: flex; align-items: center; justify-content: center; }
+  #menu-btn { display: flex !important; }
   #desktop-vt { display: none !important; }
   #mobile-vt { display: flex !important; }
-  #search-btn { display: flex !important; align-items: center; justify-content: center; }
-  .ym-select { font-size: 13px; padding: 4px 4px; }
-  .nav-arrow { width: 28px; height: 28px; font-size: 18px; }
+  #search-btn { display: flex !important; }
   #today-btn { display: none; }
   .wk-gut, .wk-tcol { width: 36px; }
   .ad-gut { width: 36px; }
-  .wk-dc .wdd { font-size: 14px; }
   .fg2 { grid-template-columns: 1fr; }
 }
 #desktop-vt { display: flex; }
 #mobile-vt { display: none; }
 
-/* Scrollbar */
+/* Print */
+@media print {
+  #sidebar, #toolbar, #popup, #toast, #search-ov, #loading, #config-screen { display: none !important; }
+  #main, #cal, #mv, .month-grid { overflow: visible !important; height: auto !important; }
+  body { background: #fff; color: #000; }
+  #app { display: block; }
+}
+
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: var(--r-pill); }
-
-/* ── Toolbar layout ── */
-#nav-center {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
-  justify-content: center;
-}
-#toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-/* ── Nav arrows (flanking) ── */
-.nav-arrow {
-  background: none;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 20px;
-  line-height: 1;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background .15s, transform .1s;
-  flex-shrink: 0;
-}
-.nav-arrow:hover { background: rgba(0,102,204,0.08); }
-.nav-arrow:active { background: rgba(0,102,204,0.14); transform: scale(0.9); }
-
-/* ── Year/Month selects ── */
-#ym-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-.ym-select {
-  border: none;
-  background: transparent;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: -0.374px;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 5px 6px;
-  border-radius: var(--r-sm);
-  text-align: center;
-  transition: background .15s;
-}
-.ym-select:focus { outline: none; background: var(--canvas-parchment); }
-.ym-select:hover { background: var(--canvas-parchment); }
-
-#week-label {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.374px;
-  color: var(--ink);
-  padding: 0 8px;
-  white-space: nowrap;
-}
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: var(--r-pill); }
 </style>
 </head>
 <body>
-<div id="app">
+
+<!-- Loading -->
+<div id="loading"><div class="spin"></div><p>Firebase 연결 중...</p></div>
+
+<!-- Firebase Config Screen -->
+<div id="config-screen" class="hidden">
+  <div class="config-card">
+    <h2>🔥 Firebase 연결</h2>
+    <p>공주시정신건강복지센터 팀 스케줄러를 시작하려면<br>Firebase 프로젝트 설정을 입력해주세요.<br>한 번만 입력하면 저장됩니다.</p>
+    <div class="config-field">
+      <label>Database URL</label>
+      <input id="cfg-url" type="text" placeholder="https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app">
+      <div class="config-hint">Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱에서 확인</div>
+    </div>
+    <div class="config-field">
+      <label>API Key</label>
+      <input id="cfg-key" type="text" placeholder="AIza...">
+    </div>
+    <div class="config-field">
+      <label>Project ID</label>
+      <input id="cfg-pid" type="text" placeholder="your-project-id">
+    </div>
+    <button class="connect-btn" onclick="connectFirebase()">연결하기</button>
+    <div class="config-reset" onclick="resetConfig()">저장된 설정 초기화</div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
 
 <!-- Sidebar -->
 <div id="sidebar">
-  <div id="sb-head">
-    <h1>공주시정신건강복지센터</h1>
-    <p>팀 스케줄러</p>
+  <div id="sb-brand">
+    <div class="org">공주시정신건강복지센터</div>
+    <div class="app-name">팀 스케줄러</div>
+    <div class="firebase-badge">Firebase 실시간 동기화</div>
   </div>
   <div id="sb-body">
-    <div class="sec-ttl">팀원</div>
+    <div class="sb-section">팀원</div>
     <div id="mb-list"></div>
-    <button class="sb-btn" onclick="openMemberModal()" style="margin-top:8px">+ 팀원 추가 / 관리</button>
-    <div class="sec-ttl">카테고리</div>
+    <button class="sb-btn" onclick="openMemberModal()" style="margin-top:6px">+ 팀원 추가 / 관리</button>
+    <div class="sb-section">카테고리</div>
     <div id="cat-list"></div>
   </div>
   <div id="sb-foot">
     <button class="sb-btn" onclick="exportICS()">↑ ICS 내보내기</button>
     <button class="sb-btn" onclick="window.print()">인쇄</button>
-    <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px;letter-spacing:-0.08px">자동저장 (로컬)</div>
+    <button class="sb-btn" onclick="showConfigScreen()">⚙ Firebase 설정</button>
   </div>
 </div>
 <div id="sb-ov" onclick="closeSidebar()"></div>
 
 <!-- Main -->
 <div id="main">
-  <!-- Sub-nav / Toolbar -->
+  <!-- Toolbar -->
   <div id="toolbar">
     <button id="menu-btn" onclick="toggleSidebar()">☰</button>
-
-    <!-- 중앙: 이전/다음 화살표 + 연월 드롭다운 -->
     <div id="nav-center">
-      <button class="nav-arrow" onclick="nav(-1)" aria-label="이전">‹</button>
+      <button class="nav-arrow" onclick="nav(-1)">‹</button>
       <div id="ym-wrap">
         <select id="sel-year" class="ym-select" onchange="jumpYM()"></select>
         <select id="sel-month" class="ym-select" onchange="jumpYM()">
@@ -901,10 +714,8 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
         </select>
       </div>
       <div id="week-label" style="display:none"></div>
-      <button class="nav-arrow" onclick="nav(1)" aria-label="다음">›</button>
+      <button class="nav-arrow" onclick="nav(1)">›</button>
     </div>
-
-    <!-- 우측: 오늘 / 뷰 전환 / 검색 / 추가 -->
     <div id="toolbar-right">
       <button id="today-btn" onclick="goToday()">오늘</button>
       <div id="desktop-vt" class="vt">
@@ -922,20 +733,13 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
 
   <!-- Calendar -->
   <div id="cal">
-    <!-- Month view -->
     <div id="mv">
       <div class="dow-row">
-        <div class="dow-cell">일</div>
-        <div class="dow-cell">월</div>
-        <div class="dow-cell">화</div>
-        <div class="dow-cell">수</div>
-        <div class="dow-cell">목</div>
-        <div class="dow-cell">금</div>
-        <div class="dow-cell">토</div>
+        <div class="dow-cell">일</div><div class="dow-cell">월</div><div class="dow-cell">화</div>
+        <div class="dow-cell">수</div><div class="dow-cell">목</div><div class="dow-cell">금</div><div class="dow-cell">토</div>
       </div>
       <div class="month-grid" id="month-grid"></div>
     </div>
-    <!-- Week view -->
     <div id="wv" style="display:none">
       <div class="wk-head" id="wk-head"></div>
       <div class="ad-row" id="ad-row">
@@ -949,7 +753,7 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
     </div>
   </div>
 </div>
-</div>
+</div><!-- /app -->
 
 <!-- Search overlay -->
 <div id="search-ov">
@@ -957,10 +761,10 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
   <button id="search-cancel" onclick="closeSearch()">취소</button>
 </div>
 
-<!-- Sync toast -->
-<div id="sync">저장됨</div>
+<!-- Toast -->
+<div id="toast"></div>
 
-<!-- Event popup -->
+<!-- Popup -->
 <div id="popup">
   <div class="pp-bar" id="pp-bar"></div>
   <div class="pp-body">
@@ -979,7 +783,7 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
   </div>
 </div>
 
-<!-- Event modal -->
+<!-- Event Modal -->
 <div class="ov" id="ev-modal">
   <div class="modal">
     <div class="mh">
@@ -987,10 +791,7 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
       <button class="mc-btn" onclick="closeEvModal()">✕</button>
     </div>
     <div class="mb">
-      <div class="field">
-        <label>제목 *</label>
-        <input id="ev-title" type="text" placeholder="일정 제목">
-      </div>
+      <div class="field"><label>제목 *</label><input id="ev-title" type="text" placeholder="일정 제목"></div>
       <div class="fg2">
         <div class="field">
           <label>카테고리</label>
@@ -1009,28 +810,15 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
         </div>
       </div>
       <div class="fg2">
-        <div class="field">
-          <label>시작일</label>
-          <input id="ev-sd" type="date">
-        </div>
-        <div class="field">
-          <label>종료일</label>
-          <input id="ev-ed" type="date">
-        </div>
+        <div class="field"><label>시작일</label><input id="ev-sd" type="date"></div>
+        <div class="field"><label>종료일</label><input id="ev-ed" type="date"></div>
       </div>
       <label class="chk-row">
-        <input type="checkbox" id="ev-allday" onchange="toggleAllday()">
-        종일 일정
+        <input type="checkbox" id="ev-allday" onchange="toggleAllday()"> 종일 일정
       </label>
       <div class="fg2" id="time-area">
-        <div class="field">
-          <label>시작 시간</label>
-          <input id="ev-st" type="time" value="09:00">
-        </div>
-        <div class="field">
-          <label>종료 시간</label>
-          <input id="ev-et" type="time" value="10:00">
-        </div>
+        <div class="field"><label>시작 시간</label><input id="ev-st" type="time" value="09:00"></div>
+        <div class="field"><label>종료 시간</label><input id="ev-et" type="time" value="10:00"></div>
       </div>
       <div class="field">
         <label>반복</label>
@@ -1042,10 +830,7 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
           <option value="yearly">매년</option>
         </select>
       </div>
-      <div class="field">
-        <label>메모</label>
-        <textarea id="ev-memo" placeholder="메모를 입력하세요..."></textarea>
-      </div>
+      <div class="field"><label>메모</label><textarea id="ev-memo" placeholder="메모를 입력하세요..."></textarea></div>
     </div>
     <div class="mf">
       <button class="btn btn-d" id="ev-del-btn" onclick="delCurEvent()" style="display:none">삭제</button>
@@ -1055,9 +840,9 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
   </div>
 </div>
 
-<!-- Member modal -->
+<!-- Member Modal -->
 <div class="ov" id="mem-modal">
-  <div class="modal" style="max-width:360px">
+  <div class="modal" style="max-width:340px">
     <div class="mh">
       <h3>팀원 관리</h3>
       <button class="mc-btn" onclick="closeMemModal()">✕</button>
@@ -1069,544 +854,466 @@ button, input, select, textarea { font-family: var(--font); cursor: pointer; }
         <div class="swatches" id="swatches"></div>
       </div>
       <button class="btn btn-p btn-f" onclick="addMember()">팀원 추가</button>
-      <div style="margin-top:16px;border-top:1px solid var(--hairline);padding-top:14px">
-        <div style="font-size:12px;font-weight:600;color:var(--ink-muted-48);letter-spacing:-0.12px;margin-bottom:8px">현재 팀원</div>
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--text-faint);letter-spacing:0.3px;text-transform:uppercase;margin-bottom:8px">현재 팀원</div>
         <div id="mem-manage"></div>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-/* ══════════════════════════════════════
+<!-- ══ Firebase Logic ══ -->
+<script type="module">
+import { initializeApp, getApps } from 'firebase/app';
+import {
+  getDatabase, ref, push, set, update, remove, onValue, off
+} from 'firebase/database';
+
+/* ─────────────────────────────────
    Constants
-══════════════════════════════════════ */
-var COLORS = ['#0066cc','#30d158','#ff9f0a','#ff3b30','#bf5af2','#ff375f','#32ade6','#ff6961','#5ac8fa','#6e6e73'];
-var CATS = {
-  meeting:   {l:'회의/미팅', i:'📋', c:'#0066cc', bg:'rgba(0,102,204,0.08)'},
-  education: {l:'교육',      i:'📚', c:'#32ade6', bg:'rgba(50,173,230,0.08)'},
-  visit:     {l:'방문/외근', i:'🚶', c:'#30d158', bg:'rgba(48,209,88,0.08)'},
-  admin:     {l:'행정',      i:'📂', c:'#ff9f0a', bg:'rgba(255,159,10,0.08)'},
-  personal:  {l:'개인',      i:'🧍', c:'#ff3b30', bg:'rgba(255,59,48,0.08)'},
-  other:     {l:'기타',      i:'📌', c:'#bf5af2', bg:'rgba(191,90,242,0.08)'}
+───────────────────────────────── */
+const ROOT = 'team-scheduler-v1';
+const COLORS = ['#4F8EF7','#4ADE80','#FFB347','#FF5555','#BF79F9','#FF79C0','#56C8F0','#FED766','#A8EDEA','#9B8EF7'];
+const CATS = {
+  meeting:   {l:'회의/미팅', i:'📋', c:'#4F8EF7', bg:'rgba(79,142,247,0.15)'},
+  education: {l:'교육',      i:'📚', c:'#56C8F0', bg:'rgba(86,200,240,0.15)'},
+  visit:     {l:'방문/외근', i:'🚶', c:'#4ADE80', bg:'rgba(74,222,128,0.15)'},
+  admin:     {l:'행정',      i:'📂', c:'#FFB347', bg:'rgba(255,179,71,0.15)'},
+  personal:  {l:'개인',      i:'🧍', c:'#FF5555', bg:'rgba(255,85,85,0.15)'},
+  other:     {l:'기타',      i:'📌', c:'#BF79F9', bg:'rgba(191,121,249,0.15)'}
 };
-var REP = {none:'없음',daily:'매일',weekly:'매주',monthly:'매월',yearly:'매년'};
-var HOUR_H = 54;
+const REP = {none:'없음',daily:'매일',weekly:'매주',monthly:'매월',yearly:'매년'};
+const HOUR_H = 54;
+const MIN_YEAR = 2020, MAX_YEAR = 2032;
+const CFG_KEY = 'team_sched_fb_config';
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    State
-══════════════════════════════════════ */
-var members = [];
-var events = [];
-var hiddenCats = [];
-var curDate = new Date();
-var curView = 'month';
-var editId = null;
-var popupId = null;
-var swIdx = 0;
-var searchQ = '';
+───────────────────────────────── */
+let db = null;
+let members = [];
+let events = [];
+let hiddenCats = JSON.parse(localStorage.getItem('team_sched_hidden_cats') || '[]');
+let curDate = new Date();
+let curView = 'month';
+let editId = null;
+let popupId = null;
+let swIdx = 0;
+let searchQ = '';
+let unsubMembers = null;
+let unsubEvents  = null;
 
-/* ══════════════════════════════════════
-   Storage
-══════════════════════════════════════ */
-function loadData() {
+/* ─────────────────────────────────
+   Firebase Config
+───────────────────────────────── */
+window.connectFirebase = async function() {
+  const url = document.getElementById('cfg-url').value.trim();
+  const key = document.getElementById('cfg-key').value.trim();
+  const pid = document.getElementById('cfg-pid').value.trim();
+  if (!url || !key || !pid) { toast('모든 항목을 입력해주세요.', 'err'); return; }
+  const cfg = { databaseURL: url, apiKey: key, projectId: pid,
+    authDomain: pid + '.firebaseapp.com',
+    storageBucket: pid + '.appspot.com' };
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  await initFB(cfg);
+};
+
+window.showConfigScreen = function() {
+  document.getElementById('config-screen').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+};
+
+window.resetConfig = function() {
+  if (!confirm('Firebase 설정을 초기화하시겠습니까?')) return;
+  localStorage.removeItem(CFG_KEY);
+  location.reload();
+};
+
+async function initFB(cfg) {
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('config-screen').classList.add('hidden');
   try {
-    var raw = localStorage.getItem('team_sched_v3');
-    if (raw) {
-      var d = JSON.parse(raw);
-      members = d.members || [];
-      events = d.events || [];
-      hiddenCats = d.hiddenCats || [];
-    }
-  } catch(e) { members=[]; events=[]; hiddenCats=[]; }
-  if (!members.length) {
-    members = [
-      {id:'m1', name:'김한샘', color:'#0066cc', hidden:false},
-      {id:'m2', name:'이팀원', color:'#30d158', hidden:false}
-    ];
+    const existingApps = getApps();
+    const app = existingApps.length ? existingApps[0] : initializeApp(cfg);
+    db = getDatabase(app);
+    subscribeAll();
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').style.display = 'flex';
+    buildYearOptions();
+    setView('month');
+  } catch(e) {
+    document.getElementById('loading').classList.add('hidden');
+    toast('Firebase 연결 실패: ' + e.message, 'err');
+    showConfigScreen();
   }
 }
-function saveData() {
-  try {
-    localStorage.setItem('team_sched_v3', JSON.stringify({members:members, events:events, hiddenCats:hiddenCats}));
-    showSync();
-  } catch(e) {}
-}
-var syncT;
-function showSync() {
-  var el = document.getElementById('sync');
-  el.classList.add('on');
-  clearTimeout(syncT);
-  syncT = setTimeout(function(){ el.classList.remove('on'); }, 1800);
+
+/* Auto-connect if config saved */
+(function() {
+  const raw = localStorage.getItem(CFG_KEY);
+  if (raw) {
+    try { initFB(JSON.parse(raw)); return; }
+    catch(e) {}
+  }
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('config-screen').classList.remove('hidden');
+})();
+
+/* ─────────────────────────────────
+   Firebase Subscriptions
+───────────────────────────────── */
+function subscribeAll() {
+  // members
+  const mbRef = ref(db, `${ROOT}/members`);
+  onValue(mbRef, snap => {
+    members = [];
+    snap.forEach(child => members.push({ id: child.key, ...child.val() }));
+    renderSidebar();
+    render();
+  }, e => toast('팀원 동기화 오류', 'err'));
+
+  // events
+  const evRef = ref(db, `${ROOT}/events`);
+  onValue(evRef, snap => {
+    events = [];
+    snap.forEach(child => events.push({ id: child.key, ...child.val() }));
+    render();
+    toast('동기화됨', 'ok');
+  }, e => toast('일정 동기화 오류', 'err'));
 }
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
+   Toast
+───────────────────────────────── */
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'on ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('on'); }, 2000);
+}
+window.toast = toast;
+
+/* ─────────────────────────────────
    Sidebar
-══════════════════════════════════════ */
-function toggleSidebar() {
+───────────────────────────────── */
+window.toggleSidebar = () => {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sb-ov').classList.toggle('on');
-}
-function closeSidebar() {
+};
+window.closeSidebar = () => {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sb-ov').classList.remove('on');
-}
+};
 
 function renderSidebar() {
-  var ml = document.getElementById('mb-list');
-  var mbHtml = '';
-  for (var i=0; i<members.length; i++) {
-    var m = members[i];
-    var cnt = 0;
-    for (var j=0; j<events.length; j++) {
-      if (events[j].memberId === m.id) cnt++;
-    }
-    var dimCls = m.hidden ? ' dim' : '';
-    mbHtml += '<div class="mb-item' + dimCls + '" onclick="toggleMember(\'' + m.id + '\')">'
-      + '<div class="mb-dot" style="background:' + m.color + '"></div>'
-      + '<div class="mb-name">' + esc(m.name) + '</div>'
-      + '<div class="mb-cnt">' + cnt + '</div>'
-      + '</div>';
-  }
-  ml.innerHTML = mbHtml;
+  // members
+  let ml = '';
+  members.forEach(m => {
+    const cnt = events.filter(e => e.memberId === m.id).length;
+    ml += `<div class="mb-item${m.hidden?' dim':''}" onclick="toggleMember('${m.id}')">
+      <div class="mb-dot" style="background:${m.color}"></div>
+      <div class="mb-name">${esc(m.name)}</div>
+      <div class="mb-cnt">${cnt}</div>
+    </div>`;
+  });
+  document.getElementById('mb-list').innerHTML = ml;
 
-  var cl = document.getElementById('cat-list');
-  var catHtml = '';
-  var catKeys = ['meeting','education','visit','admin','personal','other'];
-  for (var k=0; k<catKeys.length; k++) {
-    var key = catKeys[k];
-    var info = CATS[key];
-    var hidden = hiddenCats.indexOf(key) >= 0;
-    catHtml += '<div class="cat-item' + (hidden?' dim':'') + '" onclick="toggleCat(\'' + key + '\')">'
-      + '<div class="cat-dot" style="background:' + info.c + '"></div>'
-      + '<div class="cat-name">' + info.i + ' ' + info.l + '</div>'
-      + '</div>';
-  }
-  cl.innerHTML = catHtml;
+  // cats
+  let cl = '';
+  Object.entries(CATS).forEach(([key, info]) => {
+    const dim = hiddenCats.includes(key);
+    cl += `<div class="cat-item${dim?' dim':''}" onclick="toggleCat('${key}')">
+      <div class="cat-dot" style="background:${info.c}"></div>
+      <div class="cat-name">${info.i} ${info.l}</div>
+    </div>`;
+  });
+  document.getElementById('cat-list').innerHTML = cl;
 
-  var ms = document.getElementById('ev-member');
-  var msHtml = '<option value="">미지정</option>';
-  for (var i=0; i<members.length; i++) {
-    msHtml += '<option value="' + members[i].id + '">' + esc(members[i].name) + '</option>';
-  }
+  // member select in modal
+  const ms = document.getElementById('ev-member');
+  let msHtml = '<option value="">미지정</option>';
+  members.forEach(m => { msHtml += `<option value="${m.id}">${esc(m.name)}</option>`; });
   ms.innerHTML = msHtml;
+
+  // member manage list
+  renderMemManage();
 }
 
-function toggleMember(id) {
-  for (var i=0; i<members.length; i++) {
-    if (members[i].id === id) { members[i].hidden = !members[i].hidden; break; }
-  }
+window.toggleMember = id => {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  update(ref(db, `${ROOT}/members/${id}`), { hidden: !m.hidden });
+};
+window.toggleCat = key => {
+  const idx = hiddenCats.indexOf(key);
+  if (idx >= 0) hiddenCats.splice(idx, 1); else hiddenCats.push(key);
+  localStorage.setItem('team_sched_hidden_cats', JSON.stringify(hiddenCats));
   renderSidebar(); render();
-}
-function toggleCat(key) {
-  var idx = hiddenCats.indexOf(key);
-  if (idx >= 0) hiddenCats.splice(idx,1);
-  else hiddenCats.push(key);
-  renderSidebar(); render();
-}
+};
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Visibility
-══════════════════════════════════════ */
+───────────────────────────────── */
 function isVisible(ev) {
-  if (hiddenCats.indexOf(ev.cat) >= 0) return false;
-  var m = getMember(ev.memberId);
+  if (hiddenCats.includes(ev.cat)) return false;
+  const m = getMember(ev.memberId);
   if (m && m.hidden) return false;
   if (searchQ) {
-    var q = searchQ.toLowerCase();
-    var inT = (ev.title||'').toLowerCase().indexOf(q) >= 0;
-    var inMemo = (ev.memo||'').toLowerCase().indexOf(q) >= 0;
-    var inM = m ? m.name.toLowerCase().indexOf(q) >= 0 : false;
-    var cat = CATS[ev.cat];
-    var inC = cat ? cat.l.toLowerCase().indexOf(q) >= 0 : false;
+    const q = searchQ.toLowerCase();
+    const inT = (ev.title||'').toLowerCase().includes(q);
+    const inMemo = (ev.memo||'').toLowerCase().includes(q);
+    const inM = m ? m.name.toLowerCase().includes(q) : false;
+    const cat = CATS[ev.cat];
+    const inC = cat ? cat.l.toLowerCase().includes(q) : false;
     if (!inT && !inMemo && !inM && !inC) return false;
   }
   return true;
 }
 
-/* ══════════════════════════════════════
-   Date utils
-══════════════════════════════════════ */
+/* ─────────────────────────────────
+   Date Utils
+───────────────────────────────── */
 function dStr(d) {
-  var y = d.getFullYear();
-  var m = String(d.getMonth()+1).padStart(2,'0');
-  var dd = String(d.getDate()).padStart(2,'0');
-  return y+'-'+m+'-'+dd;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-function pDate(s) {
-  if (!s) return null;
-  var p = s.split('-');
-  return new Date(+p[0],+p[1]-1,+p[2]);
-}
-function sameDay(a,b) {
-  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
-}
-function weekStart(d) {
-  var w = new Date(d);
-  w.setDate(d.getDate()-d.getDay());
-  return w;
-}
-function todayStr() { return dStr(new Date()); }
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function getMember(id) {
-  for (var i=0; i<members.length; i++) {
-    if (members[i].id === id) return members[i];
-  }
-  return null;
-}
-function getEvColor(ev) {
-  var m = getMember(ev.memberId);
-  if (m) return m.color;
-  var cat = CATS[ev.cat];
-  return cat ? cat.c : '#0066cc';
-}
-function getEvBg(ev) {
-  var m = getMember(ev.memberId);
-  if (m) return m.color + '18';
-  var cat = CATS[ev.cat];
-  return cat ? cat.bg : 'rgba(0,102,204,0.08)';
-}
+function pDate(s) { if (!s) return null; const p = s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function weekStart(d) { const w=new Date(d); w.setDate(d.getDate()-d.getDay()); return w; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getMember(id) { return members.find(m => m.id === id) || null; }
+function getEvColor(ev) { const m=getMember(ev.memberId); return m ? m.color : (CATS[ev.cat]?.c || '#4F8EF7'); }
+function getEvBg(ev)    { const m=getMember(ev.memberId); return m ? m.color+'22' : (CATS[ev.cat]?.bg || 'rgba(79,142,247,0.15)'); }
 
 function occursOn(ev, d) {
-  var ds = dStr(d);
-  var start = ev.startDate || '';
-  var end = ev.endDate || start;
-  var rep = ev.repeat || 'none';
+  const ds = dStr(d), start = ev.startDate||'', end = ev.endDate||start, rep = ev.repeat||'none';
   if (rep === 'none') return ds >= start && ds <= end;
   if (ds < start) return false;
   if (rep === 'daily') return true;
-  if (rep === 'weekly') { var sd = pDate(start); return d.getDay() === sd.getDay(); }
-  if (rep === 'monthly') { var sd = pDate(start); return d.getDate() === sd.getDate(); }
-  if (rep === 'yearly') { var sd = pDate(start); return d.getMonth()===sd.getMonth() && d.getDate()===sd.getDate(); }
+  if (rep === 'weekly') { const sd=pDate(start); return d.getDay()===sd.getDay(); }
+  if (rep === 'monthly') { const sd=pDate(start); return d.getDate()===sd.getDate(); }
+  if (rep === 'yearly') { const sd=pDate(start); return d.getMonth()===sd.getMonth()&&d.getDate()===sd.getDate(); }
   return false;
 }
 
-/* ══════════════════════════════════════
-   Navigation & Year/Month Jump
-══════════════════════════════════════ */
-var MIN_YEAR = 2020;
-var MAX_YEAR = 2030;
-
+/* ─────────────────────────────────
+   Navigation
+───────────────────────────────── */
 function buildYearOptions() {
-  var sel = document.getElementById('sel-year');
-  if (!sel) return;
+  const sel = document.getElementById('sel-year');
   sel.innerHTML = '';
-  for (var y = MIN_YEAR; y <= MAX_YEAR; y++) {
-    var opt = document.createElement('option');
-    opt.value = String(y);
-    opt.textContent = y + '년';
-    sel.appendChild(opt);
+  for (let y=MIN_YEAR; y<=MAX_YEAR; y++) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y + '년'; sel.appendChild(o);
   }
-  // 옵션이 모두 추가된 뒤 현재 연도 선택
-  sel.value = String(curDate.getFullYear());
-  // 범위 밖이면 MIN_YEAR로 클램프
-  if (!sel.value) sel.value = String(MIN_YEAR);
+  sel.value = curDate.getFullYear();
 }
 
 function syncSelectors() {
-  var selY   = document.getElementById('sel-year');
-  var selM   = document.getElementById('sel-month');
-  var ymWrap = document.getElementById('ym-wrap');
-  var wkLbl  = document.getElementById('week-label');
-  // null-guard: DOM이 아직 준비되지 않은 경우 조용히 종료
-  if (!selY || !selM || !ymWrap || !wkLbl) return;
-
+  const selY = document.getElementById('sel-year');
+  const selM = document.getElementById('sel-month');
+  const ymWrap = document.getElementById('ym-wrap');
+  const wkLbl  = document.getElementById('week-label');
+  if (!selY||!selM||!ymWrap||!wkLbl) return;
   if (curView === 'month') {
-    ymWrap.style.display = 'flex';
-    wkLbl.style.display  = 'none';
-    // sel-year 옵션이 아직 없으면(buildYearOptions 전) 설정 건너뜀
-    if (selY.options.length > 0) {
-      selY.value = String(curDate.getFullYear());
-    }
-    selM.value = String(curDate.getMonth());
+    ymWrap.style.display='flex'; wkLbl.style.display='none';
+    if (selY.options.length) selY.value = curDate.getFullYear();
+    selM.value = curDate.getMonth();
   } else {
-    ymWrap.style.display = 'none';
-    wkLbl.style.display  = 'block';
-    var ws = weekStart(curDate);
-    var we = new Date(ws); we.setDate(ws.getDate() + 6);
-    wkLbl.textContent = curDate.getFullYear() + '년 '
-      + (ws.getMonth()+1) + '/' + ws.getDate() + ' – '
-      + (we.getMonth()+1) + '/' + we.getDate();
+    ymWrap.style.display='none'; wkLbl.style.display='block';
+    const ws=weekStart(curDate), we=new Date(ws); we.setDate(ws.getDate()+6);
+    wkLbl.textContent = curDate.getFullYear()+'년 '+(ws.getMonth()+1)+'/'+ws.getDate()+' – '+(we.getMonth()+1)+'/'+we.getDate();
   }
 }
 
-function jumpYM() {
-  var y = parseInt(document.getElementById('sel-year').value, 10);
-  var m = parseInt(document.getElementById('sel-month').value, 10);
-  curDate = new Date(y, m, 1);
-  render();
-}
-
-function nav(dir) {
-  if (curView === 'month') {
-    var y = curDate.getFullYear();
-    var m = curDate.getMonth() + dir;
-    if (m < 0)  { y--; m = 11; }
-    if (m > 11) { y++; m = 0;  }
-    if (y < MIN_YEAR || y > MAX_YEAR) return;
-    curDate = new Date(y, m, 1);
+window.jumpYM = () => {
+  const y = parseInt(document.getElementById('sel-year').value,10);
+  const m = parseInt(document.getElementById('sel-month').value,10);
+  curDate = new Date(y,m,1); render();
+};
+window.nav = dir => {
+  if (curView==='month') {
+    let y=curDate.getFullYear(), m=curDate.getMonth()+dir;
+    if (m<0){y--;m=11;} if(m>11){y++;m=0;}
+    if(y<MIN_YEAR||y>MAX_YEAR)return;
+    curDate=new Date(y,m,1);
   } else {
-    var next = new Date(curDate);
-    next.setDate(next.getDate() + dir * 7);
-    if (next.getFullYear() < MIN_YEAR || next.getFullYear() > MAX_YEAR) return;
-    curDate = next;
+    const next=new Date(curDate); next.setDate(next.getDate()+dir*7);
+    if(next.getFullYear()<MIN_YEAR||next.getFullYear()>MAX_YEAR)return;
+    curDate=next;
   }
   render();
-}
-function goToday() { curDate = new Date(); render(); }
-
-function setView(v) {
-  curView = v;
-  document.getElementById('mv').style.display = (v==='month') ? '' : 'none';
-  document.getElementById('wv').style.display = (v==='week') ? '' : 'none';
-  var ids = ['vt-month','vt-week','mvt-month','mvt-week'];
-  for (var i=0; i<ids.length; i++) {
-    var el = document.getElementById(ids[i]);
-    if (!el) continue;
-    var isMonth = ids[i].indexOf('month') >= 0;
-    if (isMonth) { if (v==='month') el.classList.add('on'); else el.classList.remove('on'); }
-    else { if (v==='week') el.classList.add('on'); else el.classList.remove('on'); }
-  }
+};
+window.goToday = () => { curDate=new Date(); render(); };
+window.setView = v => {
+  curView=v;
+  document.getElementById('mv').style.display = (v==='month')?'':'none';
+  document.getElementById('wv').style.display = (v==='week')?'':'none';
+  ['vt-month','vt-week','mvt-month','mvt-week'].forEach(id => {
+    const el=document.getElementById(id); if(!el)return;
+    const isMo=id.includes('month');
+    el.classList.toggle('on', isMo ? v==='month' : v==='week');
+  });
   render();
-}
+};
 
-function updateLabel() {
-  syncSelectors();
-}
-
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Render
-══════════════════════════════════════ */
+───────────────────────────────── */
 function render() {
-  updateLabel();
-  renderSidebar();
-  if (curView === 'month') renderMonth();
-  else renderWeek();
+  syncSelectors();
+  if (curView==='month') renderMonth(); else renderWeek();
 }
 
 function renderMonth() {
-  var grid = document.getElementById('month-grid');
-  var today = new Date();
-  var y = curDate.getFullYear();
-  var mo = curDate.getMonth();
-  var first = new Date(y,mo,1);
-  var last  = new Date(y,mo+1,0);
-  var startDow = first.getDay();
-  var total = Math.ceil((startDow + last.getDate()) / 7) * 7;
-  var html = '';
-
-  for (var i=0; i<total; i++) {
-    var offset = i - startDow;
-    var d = new Date(y,mo,1+offset);
-    var ds = dStr(d);
-    var isOther = d.getMonth() !== mo;
-    var isToday = sameDay(d, today);
-    var dow = d.getDay();
-
-    var dayEvs = [];
-    for (var j=0; j<events.length; j++) {
-      if (isVisible(events[j]) && occursOn(events[j], d)) dayEvs.push(events[j]);
-    }
-    dayEvs.sort(function(a,b){
-      var at = a.startTime||'00:00';
-      var bt = b.startTime||'00:00';
-      return at > bt ? 1 : -1;
+  const grid = document.getElementById('month-grid');
+  const today = new Date();
+  const y=curDate.getFullYear(), mo=curDate.getMonth();
+  const first=new Date(y,mo,1), last=new Date(y,mo+1,0);
+  const startDow=first.getDay();
+  const total=Math.ceil((startDow+last.getDate())/7)*7;
+  let html='';
+  for(let i=0;i<total;i++){
+    const offset=i-startDow, d=new Date(y,mo,1+offset), ds=dStr(d);
+    const isOther=d.getMonth()!==mo, isToday=sameDay(d,today), dow=d.getDay();
+    const dayEvs=events.filter(ev=>isVisible(ev)&&occursOn(ev,d))
+      .sort((a,b)=>(a.startTime||'00:00')>(b.startTime||'00:00')?1:-1);
+    let cls='dc'+(isOther?' other':'')+(dow===0?' sun':'')+(dow===6?' sat':'');
+    const dnHtml=isToday?`<div class="dn"><span class="dn-today">${d.getDate()}</span></div>`:`<div class="dn">${d.getDate()}</div>`;
+    const maxShow=3;
+    let chips='';
+    dayEvs.slice(0,maxShow).forEach(ev=>{
+      chips+=`<div class="ev-chip" style="color:${getEvColor(ev)};background:${getEvBg(ev)};border-left:2px solid ${getEvColor(ev)}"
+        onclick="event.stopPropagation();showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
     });
-
-    var cls = 'dc';
-    if (isOther) cls += ' other';
-    if (dow===0) cls += ' sun';
-    if (dow===6) cls += ' sat';
-
-    var dnHtml = isToday
-      ? '<div class="dn"><span class="dn-today">'+d.getDate()+'</span></div>'
-      : '<div class="dn">'+d.getDate()+'</div>';
-
-    var maxShow = 3;
-    var chipsHtml = '';
-    for (var k=0; k<dayEvs.length && k<maxShow; k++) {
-      var ev = dayEvs[k];
-      var col = getEvColor(ev);
-      var bg  = getEvBg(ev);
-      chipsHtml += '<div class="ev-chip" style="color:'+col+';background:'+bg+';border-left:2px solid '+col+'"'
-        +' onclick="event.stopPropagation();showPopup(\''+ev.id+'\',event)">'
-        +esc(ev.title)+'</div>';
-    }
-    var more = dayEvs.length - maxShow;
-    if (more > 0) chipsHtml += '<div class="more-lbl">+'+more+'개</div>';
-
-    html += '<div class="'+cls+'" onclick="openNewEventOnDate(\''+ds+'\')">'
-      + dnHtml + chipsHtml + '</div>';
+    const more=dayEvs.length-maxShow;
+    if(more>0) chips+=`<div class="more-lbl">+${more}개</div>`;
+    html+=`<div class="${cls}" onclick="openNewEventOnDate('${ds}')">${dnHtml}${chips}</div>`;
   }
-  grid.innerHTML = html;
+  grid.innerHTML=html;
 }
 
 function renderWeek() {
-  var today = new Date();
-  var ws = weekStart(curDate);
-  var days = [];
-  for (var i=0; i<7; i++) {
-    var d = new Date(ws); d.setDate(ws.getDate()+i); days.push(d);
+  const today=new Date(), ws=weekStart(curDate);
+  const days=[]; for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);days.push(d);}
+  const WDAYS=['일','월','화','수','목','금','토'];
+  // header
+  let hh='<div class="wk-gut"></div>';
+  days.forEach(d=>{
+    const isT=sameDay(d,today);
+    let cls='wk-dc'+(isT?' today':'')+(d.getDay()===0?' sun':'')+(d.getDay()===6?' sat':'');
+    hh+=`<div class="${cls}"><div class="wdn">${WDAYS[d.getDay()]}</div><div class="wdd">${d.getDate()}</div></div>`;
+  });
+  document.getElementById('wk-head').innerHTML=hh;
+  // all-day
+  let adh='';
+  days.forEach(d=>{
+    let col='';
+    events.filter(ev=>ev.allday&&isVisible(ev)&&occursOn(ev,d)).forEach(ev=>{
+      col+=`<div class="ad-chip" style="color:${getEvColor(ev)};background:${getEvBg(ev)}"
+        onclick="showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
+    });
+    adh+=`<div class="ad-col">${col}</div>`;
+  });
+  document.getElementById('ad-cols').innerHTML=adh;
+  // time grid
+  const totalH=24*HOUR_H;
+  let tch='';
+  for(let h=0;h<24;h++){
+    const lbl=h===0?'':(h<12?h+'am':(h===12?'12pm':(h-12)+'pm'));
+    tch+=`<div class="t-lbl" style="top:${h*HOUR_H}px">${lbl}</div>`;
   }
-  var WDAYS = ['일','월','화','수','목','금','토'];
-
-  var headHtml = '<div class="wk-gut"></div>';
-  for (var i=0; i<7; i++) {
-    var d = days[i];
-    var isT = sameDay(d, today);
-    var cls = 'wk-dc';
-    if (isT) cls += ' today';
-    if (d.getDay()===0) cls += ' sun';
-    if (d.getDay()===6) cls += ' sat';
-    headHtml += '<div class="'+cls+'"><div class="wdn">'+WDAYS[d.getDay()]+'</div><div class="wdd">'+d.getDate()+'</div></div>';
-  }
-  document.getElementById('wk-head').innerHTML = headHtml;
-
-  var adHtml = '';
-  for (var i=0; i<7; i++) {
-    var d = days[i];
-    var colHtml = '';
-    for (var j=0; j<events.length; j++) {
-      var ev = events[j];
-      if (ev.allday && isVisible(ev) && occursOn(ev, d)) {
-        var col = getEvColor(ev);
-        var bg  = getEvBg(ev);
-        colHtml += '<div class="ad-chip" style="color:'+col+';background:'+bg+'"'
-          +' onclick="showPopup(\''+ev.id+'\',event)">'+esc(ev.title)+'</div>';
-      }
+  const tc=document.getElementById('wk-tcol');
+  tc.style.cssText=`height:${totalH}px;position:relative`;
+  tc.innerHTML=tch;
+  let dh='';
+  days.forEach(d=>{
+    const ds=dStr(d), isT=sameDay(d,today);
+    let lines='';
+    for(let h=0;h<24;h++){
+      lines+=`<div class="h-line" style="top:${h*HOUR_H}px"></div><div class="h-half" style="top:${h*HOUR_H+HOUR_H/2}px"></div>`;
     }
-    adHtml += '<div class="ad-col">'+colHtml+'</div>';
-  }
-  document.getElementById('ad-cols').innerHTML = adHtml;
-
-  var tcolHtml = '';
-  var totalH = 24 * HOUR_H;
-  for (var h=0; h<24; h++) {
-    var top = h * HOUR_H;
-    var lbl = h===0 ? '' : (h<12 ? h+'am' : (h===12 ? '12pm' : (h-12)+'pm'));
-    tcolHtml += '<div class="t-lbl" style="top:'+top+'px">'+lbl+'</div>';
-  }
-  var tcol = document.getElementById('wk-tcol');
-  tcol.style.height = totalH+'px';
-  tcol.style.position = 'relative';
-  tcol.innerHTML = tcolHtml;
-
-  var daysHtml = '';
-  for (var i=0; i<7; i++) {
-    var d = days[i];
-    var ds = dStr(d);
-    var isT = sameDay(d, today);
-    var laneCls = 'wk-lane'+(isT?' today-bg':'');
-    var linesHtml = '';
-    for (var h=0; h<24; h++) {
-      linesHtml += '<div class="h-line" style="top:'+(h*HOUR_H)+'px"></div>';
-      linesHtml += '<div class="h-half" style="top:'+(h*HOUR_H+HOUR_H/2)+'px"></div>';
+    let now='';
+    if(isT){
+      const n=new Date();
+      const nowTop=Math.round(((n.getHours()*60+n.getMinutes())/(24*60))*totalH);
+      now=`<div class="now-line" style="top:${nowTop}px"><div class="now-dot"></div></div>`;
     }
-    var nowHtml = '';
-    if (isT) {
-      var now = new Date();
-      var pct = (now.getHours()*60+now.getMinutes())/(24*60);
-      var nowTop = Math.round(pct*totalH);
-      nowHtml = '<div class="now-line" style="top:'+nowTop+'px"><div class="now-dot"></div></div>';
-    }
-    var evHtml = '';
-    for (var j=0; j<events.length; j++) {
-      var ev = events[j];
-      if (!ev.allday && isVisible(ev) && occursOn(ev, d)) {
-        var st = ev.startTime||'00:00';
-        var et = ev.endTime||'01:00';
-        var sp = st.split(':'); var sh = +sp[0]; var sm = +sp[1];
-        var ep = et.split(':'); var eh = +ep[0]; var em = +ep[1];
-        var topPx = Math.round(((sh*60+sm)/(24*60))*totalH);
-        var botPx = Math.round(((eh*60+em)/(24*60))*totalH);
-        var hPx = Math.max(24, botPx-topPx);
-        var col = getEvColor(ev);
-        var bg  = getEvBg(ev);
-        var mem = getMember(ev.memberId);
-        var timeStr = st+(mem?' · '+mem.name:'');
-        evHtml += '<div class="wk-ev" style="top:'+topPx+'px;height:'+hPx+'px;background:'+bg+';border-left-color:'+col+';color:'+col+'"'
-          +' onclick="event.stopPropagation();showPopup(\''+ev.id+'\',event)">'
-          +'<div class="wk-ev-title">'+esc(ev.title)+'</div>'
-          +(hPx>32?'<div class="wk-ev-time">'+esc(timeStr)+'</div>':'')
-          +'</div>';
-      }
-    }
-    daysHtml += '<div class="'+laneCls+'" style="height:'+totalH+'px;position:relative" data-date="'+ds+'">'
-      +linesHtml+nowHtml+evHtml+'</div>';
-  }
-  document.getElementById('wk-days').innerHTML = daysHtml;
-
-  var body = document.getElementById('wk-body');
-  if (!body._scrolled) {
-    var h = new Date().getHours();
-    body.scrollTop = Math.max(0,(h-1)*HOUR_H);
-    body._scrolled = true;
-  }
+    let evh='';
+    events.filter(ev=>!ev.allday&&isVisible(ev)&&occursOn(ev,d)).forEach(ev=>{
+      const st=ev.startTime||'00:00',et=ev.endTime||'01:00';
+      const [sh,sm]=st.split(':').map(Number),[eh,em]=et.split(':').map(Number);
+      const topPx=Math.round(((sh*60+sm)/(24*60))*totalH);
+      const botPx=Math.round(((eh*60+em)/(24*60))*totalH);
+      const hPx=Math.max(24,botPx-topPx);
+      const mem=getMember(ev.memberId);
+      evh+=`<div class="wk-ev" style="top:${topPx}px;height:${hPx}px;background:${getEvBg(ev)};border-left-color:${getEvColor(ev)};color:${getEvColor(ev)}"
+        onclick="event.stopPropagation();showPopup('${ev.id}',event)">
+        <div class="wk-ev-title">${esc(ev.title)}</div>
+        ${hPx>32?`<div class="wk-ev-time">${st}${mem?' · '+esc(mem.name):''}</div>`:''}
+      </div>`;
+    });
+    dh+=`<div class="wk-lane${isT?' today-bg':''}" style="height:${totalH}px;position:relative" data-date="${ds}">${lines}${now}${evh}</div>`;
+  });
+  document.getElementById('wk-days').innerHTML=dh;
+  const body=document.getElementById('wk-body');
+  if(!body._scrolled){body.scrollTop=Math.max(0,(new Date().getHours()-1)*HOUR_H);body._scrolled=true;}
 }
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Popup
-══════════════════════════════════════ */
-function showPopup(id, e) {
-  var ev = null;
-  for (var i=0; i<events.length; i++) { if (events[i].id===id) { ev=events[i]; break; } }
-  if (!ev) return;
-  popupId = id;
-  var col = getEvColor(ev);
-  var mem = getMember(ev.memberId);
-  var cat = CATS[ev.cat];
-  document.getElementById('pp-bar').style.background = col;
-  document.getElementById('pp-title').textContent = ev.title||'';
-  var dateStr = (ev.startDate||'').replace(/-/g,'/');
-  if (ev.endDate && ev.endDate !== ev.startDate) dateStr += ' ~ '+ev.endDate.replace(/-/g,'/');
-  document.getElementById('pp-date').textContent = dateStr;
-  var timeR = document.getElementById('pp-time-r');
-  if (ev.allday) timeR.style.display='none';
-  else { timeR.style.display=''; document.getElementById('pp-time').textContent=(ev.startTime||'')+' – '+(ev.endTime||''); }
-  var memR = document.getElementById('pp-mem-r');
-  if (mem) { memR.style.display=''; document.getElementById('pp-mem').textContent=mem.name; }
-  else memR.style.display='none';
-  var catR = document.getElementById('pp-cat-r');
-  if (cat) { catR.style.display=''; document.getElementById('pp-cat').textContent=cat.i+' '+cat.l; }
-  else catR.style.display='none';
-  var repR = document.getElementById('pp-rep-r');
-  if (ev.repeat && ev.repeat!=='none') { repR.style.display=''; document.getElementById('pp-rep').textContent=REP[ev.repeat]||''; }
-  else repR.style.display='none';
-  var memoR = document.getElementById('pp-memo-r');
-  if (ev.memo) { memoR.style.display=''; document.getElementById('pp-memo').textContent=ev.memo; }
-  else memoR.style.display='none';
-  var popup = document.getElementById('popup');
+───────────────────────────────── */
+window.showPopup = (id, e) => {
+  const ev=events.find(x=>x.id===id); if(!ev)return;
+  popupId=id;
+  const col=getEvColor(ev), mem=getMember(ev.memberId), cat=CATS[ev.cat];
+  document.getElementById('pp-bar').style.background=col;
+  document.getElementById('pp-title').textContent=ev.title||'';
+  let dateStr=(ev.startDate||'').replace(/-/g,'/');
+  if(ev.endDate&&ev.endDate!==ev.startDate) dateStr+=' ~ '+ev.endDate.replace(/-/g,'/');
+  document.getElementById('pp-date').textContent=dateStr;
+  const timeR=document.getElementById('pp-time-r');
+  if(ev.allday){timeR.style.display='none';}
+  else{timeR.style.display='';document.getElementById('pp-time').textContent=(ev.startTime||'')+' – '+(ev.endTime||'');}
+  const memR=document.getElementById('pp-mem-r');
+  if(mem){memR.style.display='';document.getElementById('pp-mem').textContent=mem.name;}else memR.style.display='none';
+  const catR=document.getElementById('pp-cat-r');
+  if(cat){catR.style.display='';document.getElementById('pp-cat').textContent=cat.i+' '+cat.l;}else catR.style.display='none';
+  const repR=document.getElementById('pp-rep-r');
+  if(ev.repeat&&ev.repeat!=='none'){repR.style.display='';document.getElementById('pp-rep').textContent=REP[ev.repeat]||'';}else repR.style.display='none';
+  const memoR=document.getElementById('pp-memo-r');
+  if(ev.memo){memoR.style.display='';document.getElementById('pp-memo').textContent=ev.memo;}else memoR.style.display='none';
+  const popup=document.getElementById('popup');
   popup.classList.add('on');
-  var vw=window.innerWidth, vh=window.innerHeight;
-  var pw=296, ph=260;
-  var x=e.clientX+10, y=e.clientY+10;
-  if (x+pw>vw) x=Math.max(8,e.clientX-pw-8);
-  if (y+ph>vh) y=Math.max(8,vh-ph-8);
-  if (x<8) x=8;
-  popup.style.left=x+'px'; popup.style.top=y+'px';
-}
-function closePopup() { document.getElementById('popup').classList.remove('on'); popupId=null; }
-function editFromPopup() { if (popupId) editEvent(popupId); }
-function delFromPopup() {
-  if (!popupId) return;
-  if (!confirm('삭제하시겠습니까?')) return;
-  events=events.filter(function(e){ return e.id!==popupId; });
-  saveData(); closePopup(); render();
-}
+  const vw=window.innerWidth,vh=window.innerHeight,pw=290,ph=260;
+  let x=e.clientX+10,y=e.clientY+10;
+  if(x+pw>vw)x=Math.max(8,e.clientX-pw-8);
+  if(y+ph>vh)y=Math.max(8,vh-ph-8);
+  if(x<8)x=8;
+  popup.style.left=x+'px';popup.style.top=y+'px';
+};
+window.closePopup = () => { document.getElementById('popup').classList.remove('on'); popupId=null; };
+window.editFromPopup = () => { if(popupId)editEvent(popupId); };
+window.delFromPopup = () => {
+  if(!popupId)return;
+  if(!confirm('삭제하시겠습니까?'))return;
+  remove(ref(db,`${ROOT}/events/${popupId}`));
+  closePopup();
+  toast('일정이 삭제되었습니다.','ok');
+};
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Event CRUD
-══════════════════════════════════════ */
-function openNewEvent() {
+───────────────────────────────── */
+window.openNewEvent = () => {
   editId=null;
   document.getElementById('ev-modal-title').textContent='새 일정';
   document.getElementById('ev-del-btn').style.display='none';
   document.getElementById('ev-title').value='';
   document.getElementById('ev-cat').value='meeting';
   document.getElementById('ev-member').value='';
-  var ds=dStr(curDate);
+  const ds=dStr(curDate);
   document.getElementById('ev-sd').value=ds;
   document.getElementById('ev-ed').value=ds;
   document.getElementById('ev-allday').checked=false;
@@ -1616,17 +1323,15 @@ function openNewEvent() {
   document.getElementById('ev-memo').value='';
   document.getElementById('time-area').style.display='';
   document.getElementById('ev-modal').classList.add('on');
-  setTimeout(function(){ document.getElementById('ev-title').focus(); },250);
-}
-function openNewEventOnDate(ds) {
+  setTimeout(()=>document.getElementById('ev-title').focus(),250);
+};
+window.openNewEventOnDate = ds => {
   openNewEvent();
   document.getElementById('ev-sd').value=ds;
   document.getElementById('ev-ed').value=ds;
-}
+};
 function editEvent(id) {
-  var ev=null;
-  for (var i=0; i<events.length; i++) { if (events[i].id===id) { ev=events[i]; break; } }
-  if (!ev) return;
+  const ev=events.find(x=>x.id===id); if(!ev)return;
   editId=id;
   document.getElementById('ev-modal-title').textContent='일정 수정';
   document.getElementById('ev-del-btn').style.display='';
@@ -1644,181 +1349,163 @@ function editEvent(id) {
   closePopup();
   document.getElementById('ev-modal').classList.add('on');
 }
-function toggleAllday() {
-  var chk=document.getElementById('ev-allday').checked;
-  document.getElementById('time-area').style.display=chk?'none':'';
-}
-function saveEvent() {
-  var title=document.getElementById('ev-title').value.trim();
-  if (!title) { alert('제목을 입력하세요.'); return; }
-  var sd=document.getElementById('ev-sd').value;
-  var ed=document.getElementById('ev-ed').value||sd;
-  var ev={
-    id:editId||('e'+Date.now()),
-    title:title,
-    cat:document.getElementById('ev-cat').value,
+window.toggleAllday = () => {
+  document.getElementById('time-area').style.display = document.getElementById('ev-allday').checked?'none':'';
+};
+window.saveEvent = () => {
+  const title=document.getElementById('ev-title').value.trim();
+  if(!title){alert('제목을 입력하세요.');return;}
+  const sd=document.getElementById('ev-sd').value;
+  const ed=document.getElementById('ev-ed').value||sd;
+  const ev={
+    title, cat:document.getElementById('ev-cat').value,
     memberId:document.getElementById('ev-member').value,
     startDate:sd, endDate:ed,
     allday:document.getElementById('ev-allday').checked,
     startTime:document.getElementById('ev-st').value,
     endTime:document.getElementById('ev-et').value,
     repeat:document.getElementById('ev-repeat').value,
-    memo:document.getElementById('ev-memo').value.trim()
+    memo:document.getElementById('ev-memo').value.trim(),
+    updatedAt:Date.now()
   };
-  if (editId) {
-    for (var i=0; i<events.length; i++) { if (events[i].id===editId) { events[i]=ev; break; } }
-  } else {
-    events.push(ev);
+  if(editId){
+    update(ref(db,`${ROOT}/events/${editId}`),ev);
+    toast('일정이 수정되었습니다.','ok');
+  }else{
+    push(ref(db,`${ROOT}/events`),ev);
+    toast('일정이 추가되었습니다.','ok');
   }
-  saveData(); closeEvModal(); render();
-}
-function closeEvModal() { document.getElementById('ev-modal').classList.remove('on'); }
-function delCurEvent() {
-  if (!editId) return;
-  if (!confirm('삭제하시겠습니까?')) return;
-  events=events.filter(function(e){ return e.id!==editId; });
-  saveData(); closeEvModal(); render();
-}
+  closeEvModal();
+};
+window.closeEvModal = () => document.getElementById('ev-modal').classList.remove('on');
+window.delCurEvent = () => {
+  if(!editId)return;
+  if(!confirm('삭제하시겠습니까?'))return;
+  remove(ref(db,`${ROOT}/events/${editId}`));
+  closeEvModal();
+  toast('일정이 삭제되었습니다.','ok');
+};
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Member Management
-══════════════════════════════════════ */
-function openMemberModal() {
+───────────────────────────────── */
+window.openMemberModal = () => {
   document.getElementById('mem-name').value='';
-  swIdx=0;
-  renderSwatches();
-  renderMemManage();
+  swIdx=0; renderSwatches(); renderMemManage();
   document.getElementById('mem-modal').classList.add('on');
-}
-function closeMemModal() { document.getElementById('mem-modal').classList.remove('on'); }
+};
+window.closeMemModal = () => document.getElementById('mem-modal').classList.remove('on');
 function renderSwatches() {
-  var html='';
-  for (var i=0; i<COLORS.length; i++) {
-    html+='<div class="sw'+(i===swIdx?' on':'')+'" style="background:'+COLORS[i]+'" onclick="pickSwatch('+i+')"></div>';
-  }
-  document.getElementById('swatches').innerHTML=html;
+  document.getElementById('swatches').innerHTML = COLORS.map((c,i)=>
+    `<div class="sw${i===swIdx?' on':''}" style="background:${c}" onclick="pickSwatch(${i})"></div>`
+  ).join('');
 }
-function pickSwatch(i) { swIdx=i; renderSwatches(); }
-function addMember() {
-  var name=document.getElementById('mem-name').value.trim();
-  if (!name) { alert('이름을 입력하세요.'); return; }
-  members.push({id:'m'+Date.now(), name:name, color:COLORS[swIdx], hidden:false});
+window.pickSwatch = i => { swIdx=i; renderSwatches(); };
+window.addMember = () => {
+  const name=document.getElementById('mem-name').value.trim();
+  if(!name){alert('이름을 입력하세요.');return;}
+  push(ref(db,`${ROOT}/members`),{name,color:COLORS[swIdx],hidden:false});
   document.getElementById('mem-name').value='';
-  saveData(); renderMemManage(); renderSidebar();
-}
-function removeMember(id) {
-  if (!confirm('팀원을 삭제하시겠습니까?')) return;
-  members=members.filter(function(m){ return m.id!==id; });
-  for (var i=0; i<events.length; i++) { if (events[i].memberId===id) events[i].memberId=''; }
-  saveData(); renderMemManage(); render();
-}
+  toast('팀원이 추가되었습니다.','ok');
+};
+window.removeMember = id => {
+  if(!confirm('팀원을 삭제하시겠습니까?'))return;
+  remove(ref(db,`${ROOT}/members/${id}`));
+  events.filter(e=>e.memberId===id).forEach(e=>{
+    update(ref(db,`${ROOT}/events/${e.id}`),{memberId:''});
+  });
+  toast('팀원이 삭제되었습니다.','ok');
+};
 function renderMemManage() {
-  var html='';
-  for (var i=0; i<members.length; i++) {
-    var m=members[i];
-    html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:8px;margin-bottom:2px">'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:'+m.color+';flex-shrink:0"></div>'
-      +'<div style="flex:1;font-size:15px;font-weight:400;letter-spacing:-0.374px;color:var(--ink)">'+esc(m.name)+'</div>'
-      +'<button onclick="removeMember(\''+m.id+'\')" style="background:none;border:none;color:var(--ink-muted-48);font-size:13px;padding:2px 8px;border-radius:var(--r-sm)">✕</button>'
-      +'</div>';
-  }
-  document.getElementById('mem-manage').innerHTML=html;
+  const el=document.getElementById('mem-manage');
+  if(!el)return;
+  el.innerHTML = members.map(m=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:8px;margin-bottom:2px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:14px;color:var(--text)">${esc(m.name)}</div>
+      <button onclick="removeMember('${m.id}')" style="background:none;border:none;color:var(--text-faint);font-size:12px;padding:2px 8px;border-radius:var(--r-sm)">✕</button>
+    </div>`).join('');
 }
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Search
-══════════════════════════════════════ */
-function openSearch() {
-  var ov=document.getElementById('search-ov');
-  ov.classList.add('on');
-  setTimeout(function(){ document.getElementById('search-inp').focus(); },100);
-}
-function closeSearch() {
+───────────────────────────────── */
+window.openSearch = () => {
+  document.getElementById('search-ov').classList.add('on');
+  setTimeout(()=>document.getElementById('search-inp').focus(),100);
+};
+window.closeSearch = () => {
   document.getElementById('search-ov').classList.remove('on');
   document.getElementById('search-inp').value='';
-  searchQ='';
-  render();
-}
-function doSearch(val) {
-  searchQ=(val||'').trim().toLowerCase();
-  render();
-}
+  searchQ=''; render();
+};
+window.doSearch = val => { searchQ=(val||'').trim().toLowerCase(); render(); };
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    ICS Export
-══════════════════════════════════════ */
-function pad2(n) { return String(n).padStart(2,'0'); }
-function toICSDate(ds, ts) {
-  if (!ds) return '';
-  var p=ds.split('-');
-  if (ts) { var t=ts.split(':'); return p[0]+p[1]+p[2]+'T'+t[0]+t[1]+'00'; }
+───────────────────────────────── */
+function pad2(n){return String(n).padStart(2,'0');}
+function toICSDate(ds,ts){
+  if(!ds)return'';
+  const p=ds.split('-');
+  if(ts){const t=ts.split(':');return p[0]+p[1]+p[2]+'T'+t[0]+t[1]+'00';}
   return p[0]+p[1]+p[2];
 }
-function exportICS() {
-  if (!events.length) { alert('내보낼 일정이 없습니다.'); return; }
-  var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TeamScheduler//KR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-  var now=new Date();
-  var stamp=toICSDate(dStr(now), pad2(now.getHours())+':'+pad2(now.getMinutes()));
-  for (var i=0; i<events.length; i++) {
-    var ev=events[i];
-    var m=getMember(ev.memberId);
-    var cat=CATS[ev.cat];
-    lines.push('BEGIN:VEVENT');
-    lines.push('UID:'+ev.id+'@teamscheduler');
-    lines.push('DTSTAMP:'+stamp);
-    if (ev.allday) { lines.push('DTSTART;VALUE=DATE:'+toICSDate(ev.startDate)); lines.push('DTEND;VALUE=DATE:'+toICSDate(ev.endDate||ev.startDate)); }
-    else { lines.push('DTSTART:'+toICSDate(ev.startDate,ev.startTime)); lines.push('DTEND:'+toICSDate(ev.endDate||ev.startDate,ev.endTime)); }
+window.exportICS = () => {
+  if(!events.length){alert('내보낼 일정이 없습니다.');return;}
+  const now=new Date();
+  const stamp=toICSDate(dStr(now),pad2(now.getHours())+':'+pad2(now.getMinutes()));
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TeamScheduler//KR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  events.forEach(ev=>{
+    const cat=CATS[ev.cat];
+    lines.push('BEGIN:VEVENT','UID:'+ev.id+'@teamscheduler','DTSTAMP:'+stamp);
+    if(ev.allday){lines.push('DTSTART;VALUE=DATE:'+toICSDate(ev.startDate),'DTEND;VALUE=DATE:'+toICSDate(ev.endDate||ev.startDate));}
+    else{lines.push('DTSTART:'+toICSDate(ev.startDate,ev.startTime),'DTEND:'+toICSDate(ev.endDate||ev.startDate,ev.endTime));}
     lines.push('SUMMARY:'+(ev.title||''));
-    if (cat) lines.push('CATEGORIES:'+cat.l);
-    if (ev.memo) lines.push('DESCRIPTION:'+(ev.memo||'').replace(/\n/g,'\\n'));
-    var repMap={daily:'DAILY',weekly:'WEEKLY',monthly:'MONTHLY',yearly:'YEARLY'};
-    if (ev.repeat && repMap[ev.repeat]) lines.push('RRULE:FREQ='+repMap[ev.repeat]);
+    if(cat)lines.push('CATEGORIES:'+cat.l);
+    if(ev.memo)lines.push('DESCRIPTION:'+(ev.memo||'').replace(/\n/g,'\\n'));
+    const repMap={daily:'DAILY',weekly:'WEEKLY',monthly:'MONTHLY',yearly:'YEARLY'};
+    if(ev.repeat&&repMap[ev.repeat])lines.push('RRULE:FREQ='+repMap[ev.repeat]);
     lines.push('END:VEVENT');
-  }
+  });
   lines.push('END:VCALENDAR');
-  var blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
-  var a=document.createElement('a');
+  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
+  const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='팀스케줄_'+dStr(new Date())+'.ics';
   a.click();
-}
+};
 
-/* ══════════════════════════════════════
-   Touch / Swipe
-══════════════════════════════════════ */
-var tsX=0, tsY=0, tMoved=false;
-var calEl=document.getElementById('cal');
-calEl.addEventListener('touchstart',function(e){ if(e.touches.length!==1)return; tsX=e.touches[0].clientX; tsY=e.touches[0].clientY; tMoved=false; },{passive:true});
-calEl.addEventListener('touchmove',function(e){ if(e.touches.length!==1)return; var dx=Math.abs(e.touches[0].clientX-tsX); var dy=Math.abs(e.touches[0].clientY-tsY); if(dx>8||dy>8)tMoved=true; },{passive:true});
-calEl.addEventListener('touchend',function(e){
+/* ─────────────────────────────────
+   Touch Swipe
+───────────────────────────────── */
+let tsX=0,tsY=0,tMoved=false;
+const calEl=document.getElementById('cal');
+calEl.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;tMoved=false;},{passive:true});
+calEl.addEventListener('touchmove',e=>{if(e.touches.length!==1)return;if(Math.abs(e.touches[0].clientX-tsX)>8||Math.abs(e.touches[0].clientY-tsY)>8)tMoved=true;},{passive:true});
+calEl.addEventListener('touchend',e=>{
   if(e.changedTouches.length!==1)return;
-  var dx=e.changedTouches[0].clientX-tsX;
-  var dy=Math.abs(e.changedTouches[0].clientY-tsY);
-  var adx=Math.abs(dx);
-  if(adx>55&&dy<45){ nav(dx<0?1:-1); return; }
+  const dx=e.changedTouches[0].clientX-tsX, dy=Math.abs(e.changedTouches[0].clientY-tsY), adx=Math.abs(dx);
+  if(adx>55&&dy<45){nav(dx<0?1:-1);return;}
   if(!tMoved&&curView==='week'){
-    var lane=e.target;
-    while(lane&&!lane.dataset.date) lane=lane.parentElement;
-    if(lane&&lane.dataset.date) openNewEventOnDate(lane.dataset.date);
+    let lane=e.target;
+    while(lane&&!lane.dataset.date)lane=lane.parentElement;
+    if(lane&&lane.dataset.date)openNewEventOnDate(lane.dataset.date);
   }
 },{passive:true});
 
-/* ══════════════════════════════════════
+/* ─────────────────────────────────
    Keyboard / Click outside
-══════════════════════════════════════ */
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){ closePopup(); closeEvModal(); closeMemModal(); closeSearch(); }
+───────────────────────────────── */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closePopup();closeEvModal();closeMemModal();closeSearch();}
 });
-document.addEventListener('click',function(e){
-  var popup=document.getElementById('popup');
-  if(popup.classList.contains('on')&&!popup.contains(e.target)) closePopup();
+document.addEventListener('click',e=>{
+  const p=document.getElementById('popup');
+  if(p.classList.contains('on')&&!p.contains(e.target))closePopup();
 });
 
-setInterval(function(){ if(curView==='week') renderWeek(); },60000);
-
-loadData();
-buildYearOptions();
-setView('month');
+setInterval(()=>{if(curView==='week')renderWeek();},60000);
 </script>
 </body>
 </html>
