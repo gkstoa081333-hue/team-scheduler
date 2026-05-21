@@ -796,11 +796,11 @@ input, select, textarea { cursor: text; }
         <div class="field">
           <label>카테고리</label>
           <select id="ev-cat">
-            <option value="meeting">📋 회의/미팅</option>
             <option value="education">📚 교육</option>
-            <option value="visit">🚶 방문/외근</option>
-            <option value="admin">📂 행정</option>
-            <option value="personal">🧍 개인</option>
+            <option value="case">🗂 사례관리</option>
+            <option value="duty">🌙 당직근무</option>
+            <option value="meeting">📋 회의 및 간담회</option>
+            <option value="personal">🧍 개인일정</option>
             <option value="other">📌 기타</option>
           </select>
         </div>
@@ -875,12 +875,12 @@ import {
 const ROOT = 'team-scheduler-v1';
 const COLORS = ['#4F8EF7','#4ADE80','#FFB347','#FF5555','#BF79F9','#FF79C0','#56C8F0','#FED766','#A8EDEA','#9B8EF7'];
 const CATS = {
-  meeting:   {l:'회의/미팅', i:'📋', c:'#4F8EF7', bg:'rgba(79,142,247,0.15)'},
-  education: {l:'교육',      i:'📚', c:'#56C8F0', bg:'rgba(86,200,240,0.15)'},
-  visit:     {l:'방문/외근', i:'🚶', c:'#4ADE80', bg:'rgba(74,222,128,0.15)'},
-  admin:     {l:'행정',      i:'📂', c:'#FFB347', bg:'rgba(255,179,71,0.15)'},
-  personal:  {l:'개인',      i:'🧍', c:'#FF5555', bg:'rgba(255,85,85,0.15)'},
-  other:     {l:'기타',      i:'📌', c:'#BF79F9', bg:'rgba(191,121,249,0.15)'}
+  education: {l:'교육',          i:'📚', c:'#56C8F0', bg:'rgba(86,200,240,0.15)'},
+  case:      {l:'사례관리',      i:'🗂', c:'#4ADE80', bg:'rgba(74,222,128,0.15)'},
+  duty:      {l:'당직근무',      i:'🌙', c:'#FFB347', bg:'rgba(255,179,71,0.15)'},
+  meeting:   {l:'회의 및 간담회',i:'📋', c:'#4F8EF7', bg:'rgba(79,142,247,0.15)'},
+  personal:  {l:'개인일정',      i:'🧍', c:'#FF5555', bg:'rgba(255,85,85,0.15)'},
+  other:     {l:'기타',          i:'📌', c:'#BF79F9', bg:'rgba(191,121,249,0.15)'}
 };
 const REP = {none:'없음',daily:'매일',weekly:'매주',monthly:'매월',yearly:'매년'};
 const HOUR_H = 54;
@@ -1311,7 +1311,7 @@ window.openNewEvent = () => {
   document.getElementById('ev-modal-title').textContent='새 일정';
   document.getElementById('ev-del-btn').style.display='none';
   document.getElementById('ev-title').value='';
-  document.getElementById('ev-cat').value='meeting';
+  document.getElementById('ev-cat').value='education';
   document.getElementById('ev-member').value='';
   const ds=dStr(curDate);
   document.getElementById('ev-sd').value=ds;
@@ -1336,7 +1336,7 @@ function editEvent(id) {
   document.getElementById('ev-modal-title').textContent='일정 수정';
   document.getElementById('ev-del-btn').style.display='';
   document.getElementById('ev-title').value=ev.title||'';
-  document.getElementById('ev-cat').value=ev.cat||'meeting';
+  document.getElementById('ev-cat').value=ev.cat||'education';
   document.getElementById('ev-member').value=ev.memberId||'';
   document.getElementById('ev-sd').value=ev.startDate||'';
   document.getElementById('ev-ed').value=ev.endDate||ev.startDate||'';
