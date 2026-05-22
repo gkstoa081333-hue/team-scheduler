@@ -5,126 +5,134 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#0A0A0F">
 <title>팀 스케줄러 — 공주시정신건강복지센터</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- ══ Firebase SDK (v10 modular) ══ -->
-<script type="importmap">
-{
-  "imports": {
-    "firebase/app":      "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
-    "firebase/database": "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"
-  }
-}
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase v10 compat (최신 안정) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-/* ══════════════════════════════════════════
-   Design Tokens
-══════════════════════════════════════════ */
-/* ── Dark theme (default) ── */
-:root, [data-theme="dark"] {
-  --bg:           #1C1C24;
-  --bg2:          #23232E;
-  --bg3:          #2A2A38;
-  --bg4:          #31313F;
-  --surface:      #35354A;
-  --surface2:     #3E3E55;
-  --border:       rgba(255,255,255,0.09);
-  --border2:      rgba(255,255,255,0.16);
-
-  --accent:       #4F8EF7;
-  --accent-dim:   rgba(79,142,247,0.15);
-  --accent-glow:  rgba(79,142,247,0.35);
-
-  --text:         #EDEDF5;
-  --text-muted:   #9090A8;
-  --text-faint:   #5A5A78;
-
-  --danger:       #FF5555;
-  --danger-dim:   rgba(255,85,85,0.15);
-  --success:      #4ADE80;
-  --warning:      #FFB347;
-
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
-  --shadow-md: 0 4px 24px rgba(0,0,0,0.5);
-  --shadow-lg: 0 8px 48px rgba(0,0,0,0.7);
-}
-
-/* ── Light theme ── */
-[data-theme="light"] {
-  --bg:           #F5F5F7;
-  --bg2:          #FFFFFF;
-  --bg3:          #FAFAFA;
-  --bg4:          #F0F0F2;
-  --surface:      #E8E8EE;
-  --surface2:     #DCDCE4;
+/* ═══════════════════════════════════════
+   Apple Human Interface Tokens
+═══════════════════════════════════════ */
+:root[data-theme="light"] {
+  --bg:           #FFFFFF;
+  --bg-elev:      #F5F5F7;
+  --bg-elev2:     #FAFAFC;
+  --surface:      rgba(0,0,0,0.04);
+  --surface-hi:   rgba(0,0,0,0.08);
   --border:       rgba(0,0,0,0.08);
-  --border2:      rgba(0,0,0,0.14);
+  --border-hi:    rgba(0,0,0,0.14);
+  --sidebar-bg:   #000000;
+  --sidebar-text: rgba(255,255,255,0.85);
+  --sidebar-faint:rgba(255,255,255,0.4);
+  --sidebar-hover:rgba(255,255,255,0.08);
+  --sidebar-pill: rgba(255,255,255,0.12);
 
-  --accent:       #2563EB;
-  --accent-dim:   rgba(37,99,235,0.12);
-  --accent-glow:  rgba(37,99,235,0.25);
+  --accent:       #0071E3;
+  --accent-hover: #0077ED;
+  --accent-dim:   rgba(0,113,227,0.1);
 
-  --text:         #1A1A2E;
-  --text-muted:   #5A5A78;
-  --text-faint:   #A0A0B8;
+  --text:         #1D1D1F;
+  --text-muted:   #6E6E73;
+  --text-faint:   #A1A1A6;
 
-  --danger:       #DC2626;
-  --danger-dim:   rgba(220,38,38,0.1);
-  --success:      #16A34A;
-  --warning:      #D97706;
+  --danger:       #FF3B30;
+  --danger-dim:   rgba(255,59,48,0.1);
+  --success:      #30D158;
+  --warning:      #FF9500;
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 24px rgba(0,0,0,0.12);
-  --shadow-lg: 0 8px 48px rgba(0,0,0,0.18);
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:    0 12px 32px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:    0 24px 64px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.08);
+
+  --toolbar-bg:   rgba(255,255,255,0.78);
+}
+:root[data-theme="dark"] {
+  --bg:           #1C1C1E;
+  --bg-elev:      #2C2C2E;
+  --bg-elev2:     #242427;
+  --surface:      rgba(255,255,255,0.06);
+  --surface-hi:   rgba(255,255,255,0.1);
+  --border:       rgba(255,255,255,0.08);
+  --border-hi:    rgba(255,255,255,0.16);
+  --sidebar-bg:   #000000;
+  --sidebar-text: rgba(255,255,255,0.85);
+  --sidebar-faint:rgba(255,255,255,0.4);
+  --sidebar-hover:rgba(255,255,255,0.08);
+  --sidebar-pill: rgba(255,255,255,0.12);
+
+  --accent:       #0A84FF;
+  --accent-hover: #1A8FFF;
+  --accent-dim:   rgba(10,132,255,0.18);
+
+  --text:         #F5F5F7;
+  --text-muted:   #98989D;
+  --text-faint:   #636366;
+
+  --danger:       #FF453A;
+  --danger-dim:   rgba(255,69,58,0.18);
+  --success:      #30D158;
+  --warning:      #FF9F0A;
+
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg:    0 12px 32px rgba(0,0,0,0.5);
+  --shadow-xl:    0 24px 64px rgba(0,0,0,0.7);
+
+  --toolbar-bg:   rgba(28,28,30,0.78);
 }
 
-/* light 모드 hover 조정 */
-[data-theme="light"] .mb-item:hover,
-[data-theme="light"] .cat-item:hover { background: rgba(0,0,0,0.04); }
-[data-theme="light"] .mb-item:active,
-[data-theme="light"] .cat-item:active { background: rgba(0,0,0,0.07); }
-[data-theme="light"] .sb-btn:hover { background: rgba(0,0,0,0.05); }
-[data-theme="light"] #toolbar { background: rgba(245,245,247,0.88); }
-[data-theme="light"] #search-ov { background: rgba(245,245,247,0.95); }
-
+/* ── Shape, Spacing, Type ── */
 :root {
-
-  --r-sm:  6px;
+  --r-xs:  4px;
+  --r-sm:  8px;
   --r-md:  10px;
-  --r-lg:  16px;
-  --r-xl:  22px;
+  --r-lg:  14px;
+  --r-xl:  20px;
   --r-pill:9999px;
 
-  --sb-w:  230px;
-  --nav-h: 54px;
-  --font:  'Noto Sans KR', system-ui, sans-serif;
-  --sab:   env(safe-area-inset-bottom, 0px);
-  --sat:   env(safe-area-inset-top, 0px);
+  --sb-w:   232px;
+  --nav-h:  52px;
+  --sab:    env(safe-area-inset-bottom, 0px);
+  --sat:    env(safe-area-inset-top, 0px);
 
+  --font-display: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:    'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; -webkit-font-smoothing: antialiased; }
-button, input, select, textarea { font-family: var(--font); cursor: pointer; }
+/* ── Reset ── */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body { overflow: hidden; }
+button, input, select, textarea { font-family: inherit; cursor: pointer; color: inherit; }
 input, select, textarea { cursor: text; }
 
-/* ══════════════════════════════════════════
-   App Layout
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   App Shell
+═══════════════════════════════════════ */
 #app { display: flex; height: 100dvh; overflow: hidden; }
 
-/* ══════════════════════════════════════════
-   Sidebar
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   Sidebar — Apple Black Bar
+═══════════════════════════════════════ */
 #sidebar {
   width: var(--sb-w);
   flex-shrink: 0;
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
+  background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -133,104 +141,115 @@ input, select, textarea { cursor: text; }
   z-index: 150;
 }
 
-#sb-brand {
-  padding: 20px 18px 14px;
-  padding-top: calc(var(--sat) + 20px);
-  border-bottom: 1px solid var(--border);
+.sb-brand {
+  padding: 22px 20px 18px;
+  padding-top: calc(var(--sat) + 22px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
-#sb-brand .org {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-faint);
-  letter-spacing: 0.6px;
+.sb-brand .org {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 500;
+  color: var(--sidebar-faint);
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
-#sb-brand .app-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.3px;
+.sb-brand .app-name {
+  font-size: 17px; font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
 }
-.firebase-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
+.sb-brand .pulse {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 500;
   color: var(--success);
-  background: rgba(74,222,128,0.1);
-  border: 1px solid rgba(74,222,128,0.2);
+  background: rgba(48,209,88,0.12);
   border-radius: var(--r-pill);
-  padding: 2px 7px;
-  margin-top: 6px;
+  padding: 3px 8px;
+  margin-top: 8px;
 }
-.firebase-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.sb-brand .pulse::before {
+  content:''; width:5px; height:5px; border-radius:50%;
+  background: var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.9)} }
 
-#sb-body { flex: 1; overflow-y: auto; padding: 10px 10px; -webkit-overflow-scrolling: touch; }
-#sb-foot { padding: 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.sb-body { flex: 1; overflow-y: auto; padding: 12px 10px; -webkit-overflow-scrolling: touch; }
+.sb-foot { padding: 10px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 
-.sb-section { font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.8px; text-transform: uppercase; margin: 14px 8px 5px; }
-.sb-section:first-child { margin-top: 6px; }
+.sb-section {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 600;
+  color: var(--sidebar-faint);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 14px 10px 6px;
+}
+.sb-section:first-child { margin-top: 4px; }
 
-/* Member items */
 .mb-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 7px 8px; border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: var(--r-sm);
   cursor: pointer; margin-bottom: 1px;
   transition: background .15s;
   user-select: none;
 }
-.mb-item:hover { background: rgba(255,255,255,0.04); }
-.mb-item:active { background: rgba(255,255,255,0.07); }
+.mb-item:hover { background: var(--sidebar-hover); }
 .mb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.mb-name { font-size: 13px; font-weight: 400; color: var(--text); flex: 1; }
-.mb-cnt { font-size: 11px; color: var(--text-faint); background: var(--surface); border-radius: var(--r-pill); padding: 1px 6px; }
-.mb-item.dim .mb-name { color: var(--text-faint); }
-.mb-item.dim .mb-dot { opacity: 0.3; }
+.mb-name { font-size: 13px; color: var(--sidebar-text); flex: 1; letter-spacing: -0.1px; }
+.mb-cnt {
+  font-size: 11px; color: var(--sidebar-faint);
+  background: var(--sidebar-pill);
+  border-radius: var(--r-pill);
+  padding: 1px 7px; font-weight: 500;
+}
+.mb-item.dim .mb-name, .mb-item.dim .mb-dot { opacity: 0.35; }
 
-/* Category items */
 .cat-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 8px; border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: var(--r-sm);
   cursor: pointer; margin-bottom: 1px;
-  transition: background .15s;
-  user-select: none;
+  transition: background .15s; user-select: none;
 }
-.cat-item:hover { background: rgba(255,255,255,0.04); }
-.cat-item:active { background: rgba(255,255,255,0.07); }
+.cat-item:hover { background: var(--sidebar-hover); }
 .cat-dot { width: 6px; height: 6px; border-radius: 2px; flex-shrink: 0; }
-.cat-name { font-size: 12px; font-weight: 400; color: var(--text-muted); flex: 1; }
-.cat-item.dim .cat-name { color: var(--text-faint); }
-.cat-item.dim .cat-dot { opacity: 0.25; }
+.cat-name { font-size: 12px; color: rgba(255,255,255,0.7); flex: 1; }
+.cat-item.dim .cat-name, .cat-item.dim .cat-dot { opacity: 0.35; }
 
-/* Sidebar buttons */
 .sb-btn {
-  width: 100%; padding: 8px 10px;
-  border-radius: var(--r-md); border: 1px solid var(--border2);
-  background: transparent; font-size: 12px; font-weight: 400;
-  color: var(--text-muted); text-align: left;
-  margin-bottom: 5px; transition: all .15s;
+  width: 100%; padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  font-size: 12px; font-weight: 400;
+  color: rgba(255,255,255,0.75);
+  text-align: left;
+  margin-bottom: 5px;
+  transition: all .15s;
 }
-.sb-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-.sb-btn:active { background: rgba(255,255,255,0.08); }
+.sb-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════
    Main
-══════════════════════════════════════════ */
-#main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100dvh; overflow: hidden; background: var(--bg); }
+═══════════════════════════════════════ */
+#main {
+  flex: 1; display: flex; flex-direction: column;
+  min-width: 0; height: 100dvh; overflow: hidden;
+  background: var(--bg);
+}
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════
    Toolbar
-══════════════════════════════════════════ */
+═══════════════════════════════════════ */
 #toolbar {
   height: var(--nav-h);
   min-height: var(--nav-h);
   flex-shrink: 0;
-  background: rgba(10,10,15,0.85);
-  backdrop-filter: saturate(150%) blur(24px);
-  -webkit-backdrop-filter: saturate(150%) blur(24px);
+  background: var(--toolbar-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 8px;
   padding: 0 16px;
@@ -238,95 +257,118 @@ input, select, textarea { cursor: text; }
 
 #menu-btn {
   display: none; background: none; border: none;
-  width: 32px; height: 32px; border-radius: var(--r-md);
-  font-size: 18px; color: var(--text-muted);
+  width: 32px; height: 32px; border-radius: var(--r-sm);
+  font-size: 18px; color: var(--text);
   align-items: center; justify-content: center;
 }
-#menu-btn:hover { background: var(--surface); color: var(--text); }
-
-#nav-center { display: flex; align-items: center; gap: 3px; flex: 1; justify-content: center; }
 
 .nav-arrow {
   background: none; border: none;
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 30px; height: 30px;
+  border-radius: var(--r-sm);
   font-size: 18px; color: var(--accent);
   display: flex; align-items: center; justify-content: center;
   transition: background .15s, transform .1s;
 }
 .nav-arrow:hover { background: var(--accent-dim); }
-.nav-arrow:active { transform: scale(0.88); }
+.nav-arrow:active { transform: scale(0.9); }
+
+#nav-center {
+  display: flex; align-items: center; gap: 2px;
+  flex: 1; justify-content: center;
+}
 
 #ym-wrap { display: flex; align-items: center; gap: 0; }
 .ym-select {
   border: none; background: transparent;
-  font-family: var(--font); font-size: 15px; font-weight: 700;
-  color: var(--text); cursor: pointer; appearance: none; -webkit-appearance: none;
-  padding: 5px 6px; border-radius: var(--r-md);
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 600;
+  color: var(--text); cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  padding: 5px 6px; border-radius: var(--r-sm);
+  letter-spacing: -0.3px;
   transition: background .15s;
 }
-.ym-select:focus { outline: none; background: var(--surface); }
-.ym-select:hover { background: var(--surface); }
-.ym-select option { background: var(--bg3); }
+.ym-select:hover, .ym-select:focus { background: var(--surface); outline: none; }
+.ym-select option { background: var(--bg); color: var(--text); }
 
 #week-label {
-  font-size: 14px; font-weight: 700; color: var(--text);
-  padding: 0 6px; white-space: nowrap;
+  font-size: 14px; font-weight: 600;
+  color: var(--text); padding: 0 6px; white-space: nowrap;
 }
 
 #toolbar-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 #today-btn {
   background: transparent; border: none;
-  color: var(--accent); font-size: 13px; font-weight: 500;
-  padding: 5px 10px; border-radius: var(--r-pill);
+  color: var(--accent);
+  font-size: 13px; font-weight: 500;
+  padding: 5px 11px; border-radius: var(--r-pill);
   transition: background .15s;
 }
 #today-btn:hover { background: var(--accent-dim); }
 
 .vt {
-  display: flex; background: var(--surface); border-radius: var(--r-pill);
+  display: flex;
+  background: var(--surface);
+  border-radius: var(--r-pill);
   padding: 2px; gap: 1px;
 }
 .vt-btn {
-  padding: 4px 11px; border-radius: var(--r-pill); border: none;
-  background: transparent; font-size: 12px; font-weight: 600;
-  color: var(--text-muted); transition: all .15s;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  border: none; background: transparent;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-muted);
+  transition: all .15s;
 }
-.vt-btn.on { background: var(--surface2); color: var(--text); box-shadow: var(--shadow-sm); }
+.vt-btn.on {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-btn {
+  background: none; border: none;
+  width: 32px; height: 32px;
+  border-radius: var(--r-sm);
+  font-size: 15px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.icon-btn:hover { background: var(--surface); color: var(--text); }
 
 #add-btn {
-  background: var(--accent); color: #fff; border: none;
-  border-radius: var(--r-pill); padding: 7px 14px;
-  font-size: 13px; font-weight: 600; letter-spacing: -0.1px;
-  transition: all .15s; box-shadow: 0 0 12px var(--accent-glow);
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--r-pill);
+  padding: 7px 14px;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: -0.1px;
+  transition: all .15s;
+  box-shadow: var(--shadow-sm);
 }
-#add-btn:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-glow); }
-#add-btn:active { transform: scale(0.94); }
+#add-btn:hover { background: var(--accent-hover); }
+#add-btn:active { transform: scale(0.96); }
 
-#search-btn {
-  display: none; background: none; border: none;
-  width: 30px; height: 30px; border-radius: var(--r-md);
-  font-size: 16px; color: var(--accent);
-  align-items: center; justify-content: center;
-}
-
-/* ══════════════════════════════════════════
-   Calendar Area
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   Calendar
+═══════════════════════════════════════ */
 #cal { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 
-/* ── Month View ── */
+/* Month */
 #mv { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-
 .dow-row {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  flex-shrink: 0; background: var(--bg2);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .dow-cell {
-  text-align: center; padding: 8px 2px;
-  font-size: 11px; font-weight: 600; color: var(--text-faint);
-  letter-spacing: 0.4px; text-transform: uppercase;
+  text-align: center; padding: 9px 2px;
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 .dow-cell:first-child { color: var(--danger); }
 .dow-cell:last-child { color: var(--accent); }
@@ -334,415 +376,538 @@ input, select, textarea { cursor: text; }
 .month-grid {
   flex: 1; display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: minmax(68px, 1fr);
-  overflow: hidden; min-height: 0;
+  grid-auto-rows: minmax(72px, 1fr);
+  overflow: hidden;
+  min-height: 0;
 }
 
 .dc {
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 6px 5px 4px; display: flex; flex-direction: column;
-  overflow: hidden; background: var(--bg); cursor: pointer;
-  touch-action: manipulation; min-height: 0;
+  padding: 6px 5px 4px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  cursor: pointer;
+  min-height: 0;
   transition: background .12s;
 }
-.dc:hover { background: var(--bg3); }
-.dc:active { background: var(--bg4); }
+.dc:hover { background: var(--bg-elev2); }
 .dc:nth-child(7n) { border-right: none; }
-.dc.other { background: var(--bg2); }
+.dc.other { background: var(--bg-elev); }
 .dc.other .dn { color: var(--text-faint); }
 .dc.sun .dn { color: var(--danger); }
 .dc.sat .dn { color: var(--accent); }
 
 .dn {
-  font-size: 12px; font-weight: 400; line-height: 1;
-  margin-bottom: 4px; flex-shrink: 0; color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 500;
+  line-height: 1; margin-bottom: 4px;
+  color: var(--text);
+  flex-shrink: 0;
 }
 .dn-today {
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; border-radius: 50%;
   background: var(--accent); color: #fff;
-  font-size: 12px; font-weight: 700;
-  box-shadow: 0 0 10px var(--accent-glow);
+  font-weight: 600; font-size: 12px;
 }
 
 .ev-chip {
   font-size: 10px; font-weight: 600;
-  border-radius: 4px; padding: 2px 5px;
-  margin-bottom: 2px; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   cursor: pointer; flex-shrink: 0;
-  touch-action: manipulation;
+  letter-spacing: -0.1px;
   transition: filter .12s;
 }
-.ev-chip:hover { filter: brightness(1.2); }
+.ev-chip:hover { filter: brightness(1.08); }
 .more-lbl {
-  font-size: 10px; color: var(--accent); flex-shrink: 0;
-  padding: 0 3px; font-weight: 600;
+  font-size: 10px; color: var(--accent);
+  flex-shrink: 0; padding: 0 3px;
+  font-weight: 600;
 }
 
-/* ── Week View ── */
+/* Week */
 #wv { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-
 .wk-head {
-  display: flex; background: var(--bg2);
-  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  display: flex; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .wk-gut { width: 44px; flex-shrink: 0; }
-.wk-dc { flex: 1; border-left: 1px solid var(--border); text-align: center; padding: 7px 2px; }
-.wk-dc .wdn { font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.5px; text-transform: uppercase; }
-.wk-dc .wdd { font-size: 16px; font-weight: 700; margin-top: 2px; color: var(--text-muted); }
+.wk-dc {
+  flex: 1; border-left: 1px solid var(--border);
+  text-align: center; padding: 8px 2px;
+}
+.wk-dc .wdn {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.4px; text-transform: uppercase;
+}
+.wk-dc .wdd {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 600;
+  margin-top: 3px; color: var(--text);
+  letter-spacing: -0.4px;
+}
 .wk-dc.today .wdd {
   display: inline-flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border-radius: 50%;
   background: var(--accent); color: #fff;
-  box-shadow: 0 0 10px var(--accent-glow);
 }
 .wk-dc.sun .wdd { color: var(--danger); }
 .wk-dc.sat .wdd { color: var(--accent); }
 
 .ad-row {
-  display: flex; background: var(--bg3);
+  display: flex;
+  background: var(--bg-elev2);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0; min-height: 24px;
 }
 .ad-gut {
-  width: 44px; font-size: 9px; color: var(--text-faint);
+  width: 44px; font-size: 9px;
+  color: var(--text-muted);
   display: flex; align-items: center; justify-content: flex-end;
   padding-right: 6px; flex-shrink: 0;
 }
 .ad-cols { flex: 1; display: flex; }
-.ad-col { flex: 1; padding: 2px 3px; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.ad-col {
+  flex: 1; padding: 2px 3px;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 1px;
+  overflow: hidden;
+}
 .ad-chip {
-  font-size: 10px; font-weight: 600; border-radius: 4px;
-  padding: 2px 5px; white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; cursor: pointer;
+  font-size: 10px; font-weight: 600;
+  border-radius: 4px;
+  padding: 2px 5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .wk-body { flex: 1; overflow-y: auto; display: flex; min-height: 0; -webkit-overflow-scrolling: touch; }
 .wk-tcol { width: 44px; flex-shrink: 0; position: relative; }
 .t-lbl {
-  position: absolute; right: 6px; font-size: 9px;
-  color: var(--text-faint); transform: translateY(-50%);
+  position: absolute; right: 6px;
+  font-family: var(--font-display);
+  font-size: 9px; color: var(--text-muted);
+  transform: translateY(-50%);
   line-height: 1; white-space: nowrap;
 }
 .wk-days { flex: 1; display: flex; position: relative; }
-.wk-lane { flex: 1; border-left: 1px solid var(--border); position: relative; }
-.wk-lane.today-bg { background: rgba(79,142,247,0.03); }
-.h-line { position: absolute; left: 0; right: 0; border-top: 1px solid var(--border); pointer-events: none; }
-.h-half { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,0.03); pointer-events: none; }
-.now-line { position: absolute; left: 0; right: 0; border-top: 2px solid var(--accent); pointer-events: none; z-index: 5; }
-.now-dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+.wk-lane {
+  flex: 1; border-left: 1px solid var(--border);
+  position: relative;
+}
+.wk-lane.today-bg { background: rgba(10,132,255,0.03); }
+:root[data-theme="light"] .wk-lane.today-bg { background: rgba(0,113,227,0.025); }
+.h-line {
+  position: absolute; left: 0; right: 0;
+  border-top: 1px solid var(--border);
+  pointer-events: none;
+}
+.h-half {
+  position: absolute; left: 0; right: 0;
+  border-top: 1px dashed var(--border);
+  opacity: 0.4; pointer-events: none;
+}
+.now-line {
+  position: absolute; left: 0; right: 0;
+  border-top: 2px solid var(--accent);
+  pointer-events: none; z-index: 5;
+}
+.now-dot {
+  position: absolute; left: -4px; top: -4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+}
 
 .wk-ev {
   position: absolute; border-radius: 6px;
-  padding: 3px 6px; font-size: 11px; font-weight: 600;
-  overflow: hidden; cursor: pointer; left: 2px; right: 2px; z-index: 3;
-  border-left: 3px solid rgba(0,0,0,0.2);
-  touch-action: manipulation; transition: filter .1s, transform .1s;
+  padding: 3px 6px;
+  font-size: 11px; font-weight: 600;
+  overflow: hidden; cursor: pointer;
+  left: 2px; right: 2px; z-index: 3;
+  border-left: 3px solid rgba(0,0,0,0.15);
+  letter-spacing: -0.1px;
+  transition: filter .1s;
 }
-.wk-ev:hover { filter: brightness(1.15); transform: translateX(1px); }
-.wk-ev:active { transform: scale(0.97); }
+.wk-ev:hover { filter: brightness(1.08); }
 .wk-ev-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wk-ev-time { font-size: 9px; opacity: .7; font-weight: 400; }
+.wk-ev-time { font-size: 9px; opacity: 0.7; font-weight: 400; }
 
-/* ══════════════════════════════════════════
-   Event Popup
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   Popup
+═══════════════════════════════════════ */
 #popup {
-  position: fixed; background: var(--bg3);
-  border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
-  width: 290px; z-index: 300; display: none;
-  border: 1px solid var(--border2); overflow: hidden;
+  position: fixed;
+  background: var(--bg);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-xl);
+  width: 296px; z-index: 300;
+  display: none;
+  border: 1px solid var(--border);
+  overflow: hidden;
 }
-#popup.on { display: block; animation: popIn .15s ease; }
-@keyframes popIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
-.pp-bar { height: 3px; }
+#popup.on { display: block; animation: popIn .15s cubic-bezier(.4,0,.2,1); }
+@keyframes popIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
+.pp-bar { height: 4px; }
 .pp-body { padding: 14px 16px; }
-.pp-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-.pp-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-.pp-icon { font-size: 12px; flex-shrink: 0; line-height: 1.5; }
+.pp-title {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 8px; color: var(--text);
+  letter-spacing: -0.2px;
+}
+.pp-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--text-muted);
+  margin-top: 5px;
+  letter-spacing: -0.1px;
+}
+.pp-icon { font-size: 13px; flex-shrink: 0; line-height: 1.5; }
 .pp-acts {
-  display: flex; gap: 6px; padding: 10px 14px;
-  border-top: 1px solid var(--border); background: var(--bg2);
+  display: flex; gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev2);
 }
 .pp-btn {
-  flex: 1; padding: 7px; border-radius: var(--r-md);
-  font-size: 12px; font-weight: 600; border: 1px solid var(--border2);
-  background: var(--surface); color: var(--text-muted);
+  flex: 1; padding: 7px;
+  border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
   transition: all .12s;
 }
-.pp-btn:hover { background: var(--surface2); color: var(--text); }
-.pp-edit { color: var(--accent); border-color: rgba(79,142,247,0.25); background: var(--accent-dim); }
-.pp-del { color: var(--danger); border-color: rgba(255,85,85,0.2); background: var(--danger-dim); }
+.pp-btn:hover { background: var(--surface); }
+.pp-edit { color: var(--accent); border-color: rgba(10,132,255,0.25); background: var(--accent-dim); }
+.pp-del { color: var(--danger); border-color: rgba(255,59,48,0.2); background: var(--danger-dim); }
 
-/* ══════════════════════════════════════════
-   Modal / Sheet
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   Modal Overlay & Sheet
+═══════════════════════════════════════ */
 .ov {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
-  display: none; align-items: flex-end; justify-content: center;
-  z-index: 200; backdrop-filter: blur(6px);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: flex-end; justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 .ov.on { display: flex; }
-@media(min-width:641px) { .ov { align-items: center; padding: 20px; } }
+@media (min-width: 641px) {
+  .ov { align-items: center; padding: 20px; }
+}
 
 .modal {
-  background: var(--bg3); border-radius: 22px 22px 0 0;
-  width: 100%; max-width: 460px; display: flex; flex-direction: column;
+  background: var(--bg);
+  border-radius: 22px 22px 0 0;
+  width: 100%; max-width: 460px;
+  display: flex; flex-direction: column;
   max-height: 92dvh; overflow: hidden;
-  border: 1px solid var(--border2); border-bottom: none;
   animation: slideUp .25s cubic-bezier(.4,0,.2,1);
 }
-@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
-@media(min-width:641px) { .modal { border-radius: var(--r-xl); border: 1px solid var(--border2); max-height: 88vh; animation: popIn .2s ease; } }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+@media (min-width: 641px) {
+  .modal { border-radius: var(--r-xl); max-height: 88vh; animation: popIn .2s cubic-bezier(.4,0,.2,1); border: 1px solid var(--border); }
+}
 
 .mh {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-.mh h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+.mh h3 {
+  font-size: 16px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.3px;
+}
 .mc-btn {
-  background: var(--surface); border: none; border-radius: 50%;
-  width: 28px; height: 28px; font-size: 13px; color: var(--text-muted);
-  display: flex; align-items: center; justify-content: center; transition: all .12s;
+  background: var(--surface); border: none;
+  border-radius: 50%; width: 28px; height: 28px;
+  font-size: 13px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
 }
-.mc-btn:hover { background: var(--surface2); color: var(--text); }
+.mc-btn:hover { background: var(--surface-hi); color: var(--text); }
 
-.mb { padding: 14px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+.mb-section {
+  padding: 14px 20px;
+  display: flex; flex-direction: column;
+  gap: 12px;
+}
+
+.mb-list {
+  padding: 12px 20px 16px;
+  overflow-y: auto; flex: 1;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.mb-list-title {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.3px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
 .mf {
-  padding: 12px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 8px; flex-shrink: 0; background: var(--bg2);
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+  flex-shrink: 0;
+  background: var(--bg);
 }
 
 /* Form */
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 11px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.3px; text-transform: uppercase; }
+.field label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.3px; text-transform: uppercase;
+}
 .field input, .field select, .field textarea {
-  padding: 10px 13px; border: 1px solid var(--border2);
-  border-radius: var(--r-md); font-size: 14px; font-weight: 400;
-  color: var(--text); background: var(--surface);
-  transition: border-color .15s, box-shadow .15s; appearance: none; -webkit-appearance: none;
+  padding: 10px 13px;
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-md);
+  font-size: 15px; font-weight: 400;
+  color: var(--text);
+  background: var(--bg-elev);
+  letter-spacing: -0.2px;
+  transition: all .15s;
+  appearance: none; -webkit-appearance: none;
 }
 .field input:focus, .field select:focus, .field textarea:focus {
-  outline: none; border-color: var(--accent);
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg);
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
-.field select option { background: var(--bg3); }
+.field select option { background: var(--bg); color: var(--text); }
 .field textarea { resize: vertical; min-height: 64px; cursor: text; }
 
 .fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .chk-row {
   display: flex; align-items: center; gap: 8px;
-  padding: 6px 0; font-size: 14px; color: var(--text); cursor: pointer;
+  padding: 6px 0; font-size: 14px;
+  color: var(--text); cursor: pointer;
 }
 .chk-row input { width: 16px; height: 16px; accent-color: var(--accent); }
 
 /* Buttons */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  padding: 10px 18px; border-radius: var(--r-pill);
-  font-size: 14px; font-weight: 600; border: 1px solid transparent;
-  touch-action: manipulation; transition: all .12s;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 5px;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  font-size: 14px; font-weight: 500;
+  border: 1px solid transparent;
+  letter-spacing: -0.1px;
+  transition: all .15s;
 }
-.btn:active { transform: scale(0.95); }
-.btn-p { background: var(--accent); color: #fff; box-shadow: 0 0 12px var(--accent-glow); }
-.btn-p:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-glow); }
-.btn-o { background: var(--surface); color: var(--text-muted); border-color: var(--border2); }
-.btn-o:hover { background: var(--surface2); color: var(--text); }
-.btn-d { background: var(--danger-dim); color: var(--danger); border-color: rgba(255,85,85,0.25); }
-.btn-f { width: 100%; border-radius: var(--r-pill); }
+.btn:active { transform: scale(0.97); }
+.btn-p { background: var(--accent); color: #fff; }
+.btn-p:hover { background: var(--accent-hover); }
+.btn-o { background: var(--surface); color: var(--text); }
+.btn-o:hover { background: var(--surface-hi); }
+.btn-d { background: var(--danger-dim); color: var(--danger); }
+.btn-f { width: 100%; }
 
-/* ══════════════════════════════════════════
-   Search Overlay
-══════════════════════════════════════════ */
-#search-ov {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 400; display: none;
-  background: rgba(10,10,15,0.92);
-  backdrop-filter: saturate(150%) blur(24px);
-  -webkit-backdrop-filter: saturate(150%) blur(24px);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 12px; padding-top: calc(var(--sat) + 10px);
-  align-items: center; gap: 8px;
+/* Swatches */
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
+.sw {
+  width: 28px; height: 28px;
+  border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: all .15s;
 }
-#search-ov.on { display: flex; }
-#search-ov input {
-  flex: 1; padding: 9px 14px; border: 1px solid var(--border2);
-  border-radius: var(--r-pill); font-size: 14px; outline: none;
-  background: var(--surface); color: var(--text);
-}
-#search-ov input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-#search-ov input::placeholder { color: var(--text-faint); }
-#search-cancel { background: none; border: none; font-size: 14px; font-weight: 500; color: var(--accent); padding: 6px 8px; white-space: nowrap; }
+.sw:hover { transform: scale(1.08); }
+.sw.on { border-color: var(--bg); box-shadow: 0 0 0 2px var(--text); }
 
-/* ══════════════════════════════════════════
+/* Member row in list */
+.mem-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  margin-bottom: 5px;
+}
+.mem-row .dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.mem-row .name {
+  flex: 1; font-size: 14px;
+  color: var(--text); letter-spacing: -0.2px;
+}
+.mem-row button {
+  background: none; border: none;
+  color: var(--danger);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: background .15s;
+}
+.mem-row button:hover { background: var(--danger-dim); }
+
+.empty-msg {
+  text-align: center;
+  padding: 24px 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════
    Toast
-══════════════════════════════════════════ */
+═══════════════════════════════════════ */
 #toast {
-  position: fixed; bottom: calc(var(--sab) + 16px); right: 16px;
-  border-radius: var(--r-pill); padding: 7px 14px;
-  font-size: 12px; font-weight: 500; opacity: 0;
-  transition: opacity .3s, transform .3s; z-index: 500;
-  pointer-events: none; transform: translateY(8px);
+  position: fixed;
+  bottom: calc(var(--sab) + 20px);
+  left: 50%;
+  transform: translate(-50%, 12px);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--r-pill);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  opacity: 0;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  z-index: 500;
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
 }
-#toast.on { opacity: 1; transform: translateY(0); }
-#toast.ok { background: rgba(74,222,128,0.15); color: var(--success); border: 1px solid rgba(74,222,128,0.25); }
-#toast.err { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,85,85,0.25); }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+#toast.err { background: var(--danger); color: #fff; }
 
-/* ══════════════════════════════════════════
-   Loading Overlay
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   Loading
+═══════════════════════════════════════ */
 #loading {
-  position: fixed; inset: 0; background: var(--bg);
+  position: fixed; inset: 0;
+  background: var(--bg);
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 16px; z-index: 9999;
+  align-items: center; justify-content: center;
+  gap: 16px; z-index: 9999;
 }
 #loading .spin {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 3px solid var(--surface2);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--surface);
   border-top-color: var(--accent);
   animation: spin .7s linear infinite;
 }
 @keyframes spin { to{transform:rotate(360deg)} }
-#loading p { font-size: 14px; color: var(--text-muted); }
+#loading p { font-size: 13px; color: var(--text-muted); }
 #loading.hidden { display: none; }
 
-/* ══════════════════════════════════════════
-   Firebase Config Screen
-══════════════════════════════════════════ */
-#config-screen {
-  position: fixed; inset: 0; background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 9998; padding: 24px;
+/* ═══════════════════════════════════════
+   Search Overlay
+═══════════════════════════════════════ */
+#search-ov {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 400;
+  display: none;
+  background: var(--toolbar-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  padding-top: calc(var(--sat) + 10px);
+  align-items: center; gap: 8px;
 }
-#config-screen.hidden { display: none; }
-.config-card {
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: var(--r-xl); padding: 28px; width: 100%; max-width: 440px;
-  box-shadow: var(--shadow-lg);
+#search-ov.on { display: flex; }
+#search-ov input {
+  flex: 1; padding: 9px 14px;
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-pill);
+  font-size: 14px; outline: none;
+  background: var(--bg);
+  color: var(--text);
 }
-.config-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-.config-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
-.config-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-.config-field label { font-size: 11px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.3px; text-transform: uppercase; }
-.config-field input {
-  padding: 9px 12px; border: 1px solid var(--border2);
-  border-radius: var(--r-md); font-size: 13px;
-  color: var(--text); background: var(--surface);
-  transition: border-color .15s;
+#search-ov input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
-.config-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-.config-field input::placeholder { color: var(--text-faint); }
-.config-hint { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
-.connect-btn {
-  width: 100%; margin-top: 16px; padding: 12px;
-  background: var(--accent); color: #fff; border: none;
-  border-radius: var(--r-pill); font-size: 15px; font-weight: 700;
-  box-shadow: 0 0 16px var(--accent-glow);
-  transition: all .15s;
+#search-cancel {
+  background: none; border: none;
+  color: var(--accent);
+  font-size: 14px; font-weight: 500;
+  padding: 6px 8px; white-space: nowrap;
 }
-.connect-btn:hover { filter: brightness(1.1); }
-.config-reset { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 12px; cursor: pointer; text-decoration: underline; }
 
-/* ══════════════════════════════════════════
-   Swatches
-══════════════════════════════════════════ */
-.swatches { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
-.sw {
-  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-  border: 2.5px solid transparent; transition: all .15s;
-}
-.sw.on { border-color: #fff; box-shadow: 0 0 0 2px var(--surface2); }
-
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════
    Mobile
-══════════════════════════════════════════ */
-@media(max-width:640px) {
-  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-102%); }
-  #sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
-  #sb-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 140; }
+═══════════════════════════════════════ */
+@media (max-width: 640px) {
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    transform: translateX(-102%);
+  }
+  #sidebar.open { transform: translateX(0); box-shadow: var(--shadow-xl); }
+  #sb-ov {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35); z-index: 140;
+  }
   #sb-ov.on { display: block; }
-  #menu-btn { display: flex !important; }
-  #desktop-vt { display: none !important; }
-  #mobile-vt { display: flex !important; }
-  #search-btn { display: flex !important; }
+  #menu-btn { display: flex; }
   #today-btn { display: none; }
-  .wk-gut, .wk-tcol { width: 36px; }
-  .ad-gut { width: 36px; }
+  .wk-gut, .wk-tcol { width: 38px; }
+  .ad-gut { width: 38px; }
   .fg2 { grid-template-columns: 1fr; }
 }
-#desktop-vt { display: flex; }
-#mobile-vt { display: none; }
 
-/* Print */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: var(--r-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
 @media print {
-  #sidebar, #toolbar, #popup, #toast, #search-ov, #loading, #config-screen { display: none !important; }
+  #sidebar, #toolbar, #popup, #toast, #search-ov, #loading { display: none !important; }
   #main, #cal, #mv, .month-grid { overflow: visible !important; height: auto !important; }
   body { background: #fff; color: #000; }
   #app { display: block; }
 }
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: var(--r-pill); }
 </style>
 </head>
 <body>
 
 <!-- Loading -->
-<div id="loading"><div class="spin"></div><p>Firebase 연결 중...</p></div>
-
-<!-- Firebase Config Screen -->
-<div id="config-screen" class="hidden">
-  <div class="config-card">
-    <h2>🔥 Firebase 연결</h2>
-    <p>공주시정신건강복지센터 팀 스케줄러를 시작하려면<br>Firebase 프로젝트 설정을 입력해주세요.<br>한 번만 입력하면 저장됩니다.</p>
-    <div class="config-field">
-      <label>Database URL</label>
-      <input id="cfg-url" type="text" placeholder="https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app">
-      <div class="config-hint">Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱에서 확인</div>
-    </div>
-    <div class="config-field">
-      <label>API Key</label>
-      <input id="cfg-key" type="text" placeholder="AIza...">
-    </div>
-    <div class="config-field">
-      <label>Project ID</label>
-      <input id="cfg-pid" type="text" placeholder="your-project-id">
-    </div>
-    <button class="connect-btn" onclick="connectFirebase()">연결하기</button>
-    <div class="config-reset" onclick="resetConfig()">저장된 설정 초기화</div>
-  </div>
-</div>
+<div id="loading"><div class="spin"></div><p>연결 중...</p></div>
 
 <!-- App -->
 <div id="app" style="display:none">
 
 <!-- Sidebar -->
 <div id="sidebar">
-  <div id="sb-brand">
+  <div class="sb-brand">
     <div class="org">공주시정신건강복지센터</div>
     <div class="app-name">팀 스케줄러</div>
-    <div class="firebase-badge">Firebase 실시간 동기화</div>
+    <div class="pulse">실시간 동기화</div>
   </div>
-  <div id="sb-body">
+  <div class="sb-body">
     <div class="sb-section">팀원</div>
     <div id="mb-list"></div>
-    <button class="sb-btn" onclick="openMemberModal()" style="margin-top:6px">+ 팀원 추가 / 관리</button>
+    <button class="sb-btn" onclick="openMemberManager()" style="margin-top:6px">+ 팀원 추가 / 관리</button>
     <div class="sb-section">카테고리</div>
     <div id="cat-list"></div>
   </div>
-  <div id="sb-foot">
+  <div class="sb-foot">
     <button class="sb-btn" onclick="exportICS()">↑ ICS 내보내기</button>
     <button class="sb-btn" onclick="window.print()">인쇄</button>
-    <button class="sb-btn" onclick="showConfigScreen()">⚙ Firebase 설정</button>
   </div>
 </div>
 <div id="sb-ov" onclick="closeSidebar()"></div>
 
 <!-- Main -->
 <div id="main">
-  <!-- Toolbar -->
   <div id="toolbar">
     <button id="menu-btn" onclick="toggleSidebar()">☰</button>
     <div id="nav-center">
@@ -761,21 +926,16 @@ input, select, textarea { cursor: text; }
     </div>
     <div id="toolbar-right">
       <button id="today-btn" onclick="goToday()">오늘</button>
-      <div id="desktop-vt" class="vt">
+      <div class="vt">
         <button class="vt-btn on" id="vt-month" onclick="setView('month')">월</button>
         <button class="vt-btn" id="vt-week" onclick="setView('week')">주</button>
       </div>
-      <div id="mobile-vt" class="vt" style="display:none">
-        <button class="vt-btn on" id="mvt-month" onclick="setView('month')">월</button>
-        <button class="vt-btn" id="mvt-week" onclick="setView('week')">주</button>
-      </div>
-      <button id="theme-btn" onclick="toggleTheme()" title="테마 전환" style="background:none;border:none;width:30px;height:30px;border-radius:var(--r-md);font-size:16px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .15s;">🌙</button>
-      <button id="search-btn" onclick="openSearch()">⌕</button>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="테마">🌙</button>
+      <button class="icon-btn" id="search-btn" onclick="openSearch()" title="검색">⌕</button>
       <button id="add-btn" onclick="openNewEvent()">+ 일정</button>
     </div>
   </div>
 
-  <!-- Calendar -->
   <div id="cal">
     <div id="mv">
       <div class="dow-row">
@@ -786,7 +946,7 @@ input, select, textarea { cursor: text; }
     </div>
     <div id="wv" style="display:none">
       <div class="wk-head" id="wk-head"></div>
-      <div class="ad-row" id="ad-row">
+      <div class="ad-row">
         <div class="ad-gut">종일</div>
         <div class="ad-cols" id="ad-cols"></div>
       </div>
@@ -797,7 +957,7 @@ input, select, textarea { cursor: text; }
     </div>
   </div>
 </div>
-</div><!-- /app -->
+</div>
 
 <!-- Search overlay -->
 <div id="search-ov">
@@ -808,7 +968,7 @@ input, select, textarea { cursor: text; }
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- Popup -->
+<!-- Event popup -->
 <div id="popup">
   <div class="pp-bar" id="pp-bar"></div>
   <div class="pp-body">
@@ -834,8 +994,8 @@ input, select, textarea { cursor: text; }
       <h3 id="ev-modal-title">새 일정</h3>
       <button class="mc-btn" onclick="closeEvModal()">✕</button>
     </div>
-    <div class="mb">
-      <div class="field"><label>제목 *</label><input id="ev-title" type="text" placeholder="일정 제목"></div>
+    <div class="mb-section" style="overflow-y:auto;flex:1">
+      <div class="field"><label>제목</label><input id="ev-title" type="text" placeholder="일정 제목"></div>
       <div class="fg2">
         <div class="field">
           <label>카테고리</label>
@@ -884,218 +1044,236 @@ input, select, textarea { cursor: text; }
   </div>
 </div>
 
-<!-- Member Modal -->
+<!-- Member Modal — 비밀번호 + 추가 + 목록 통합 한 화면 -->
 <div class="ov" id="mem-modal">
-  <div class="modal" style="max-width:340px">
+  <div class="modal" style="max-width:380px">
     <div class="mh">
-      <h3>팀원 관리</h3>
-      <button class="mc-btn" onclick="closeMemModal()">✕</button>
+      <h3 id="mem-modal-title">🔒 팀원 관리</h3>
+      <button class="mc-btn" onclick="closeMemberModal()">✕</button>
     </div>
-    <div class="mb">
-      <div class="field"><label>이름</label><input id="mem-name" type="text" placeholder="이름 입력"></div>
+
+    <!-- STEP 1: 비밀번호 -->
+    <div id="pw-step" class="mb-section">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px">팀원 관리는 비밀번호가 필요합니다.</div>
       <div class="field">
-        <label>색상</label>
-        <div class="swatches" id="swatches"></div>
+        <label>비밀번호</label>
+        <input id="pw-input" type="password" placeholder="비밀번호 입력"
+          onkeydown="if(event.key==='Enter')checkPw()">
       </div>
-      <button class="btn btn-p btn-f" onclick="addMember()">팀원 추가</button>
-      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
-        <div style="font-size:11px;font-weight:600;color:var(--text-faint);letter-spacing:0.3px;text-transform:uppercase;margin-bottom:8px">현재 팀원</div>
-        <div id="mem-manage"></div>
+      <div id="pw-error" style="font-size:12px;color:var(--danger);display:none">❌ 비밀번호가 틀렸습니다.</div>
+      <button class="btn btn-p btn-f" onclick="checkPw()" style="margin-top:4px">확인</button>
+    </div>
+
+    <!-- STEP 2: 팀원 관리 (비밀번호 통과 후) -->
+    <div id="mgr-step" style="display:none;flex:1;display:none;flex-direction:column;min-height:0">
+      <div class="mb-section">
+        <div class="field">
+          <label>이름</label>
+          <input id="mem-name" type="text" placeholder="팀원 이름"
+            onkeydown="if(event.key==='Enter')addMember()">
+        </div>
+        <div class="field">
+          <label>색상</label>
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <button class="btn btn-p btn-f" onclick="addMember()">+ 팀원 추가</button>
+      </div>
+      <div class="mb-list">
+        <div class="mb-list-title">현재 팀원</div>
+        <div id="mem-list"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ Firebase Logic ══ -->
-<script type="module">
-import { initializeApp, getApps } from 'firebase/app';
-import {
-  getDatabase, ref, push, set, update, remove, onValue, off
-} from 'firebase/database';
+<!-- ══════════════════════════════════════
+     JavaScript — 단일 일반 스크립트
+══════════════════════════════════════ -->
+<script>
+'use strict';
 
 /* ─────────────────────────────────
-   Constants
+   Firebase 초기화 (고정 설정)
 ───────────────────────────────── */
+const FB_CFG = {
+  apiKey:        'AIzaSyATkR64ETIPXamezx42ZBWA8UZm0IP2jQ0',
+  authDomain:    'team-scheduler-de954.firebaseapp.com',
+  databaseURL:   'https://team-scheduler-de954-default-rtdb.firebaseio.com',
+  projectId:     'team-scheduler-de954',
+  storageBucket: 'team-scheduler-de954.appspot.com'
+};
 const ROOT = 'team-scheduler-v1';
-const COLORS = ['#4F8EF7','#4ADE80','#FFB347','#FF5555','#BF79F9','#FF79C0','#56C8F0','#FED766','#A8EDEA','#9B8EF7'];
+const ADMIN_PW = '1234';  // 비밀번호 변경은 여기서
+
+let db = null;
+
+/* ─────────────────────────────────
+   상수 / 상태
+───────────────────────────────── */
+const COLORS = ['#0071E3','#30D158','#FF9500','#FF3B30','#BF5AF2','#FF375F','#5AC8FA','#FFD60A','#5856D6','#AF52DE'];
 const CATS = {
-  education: {l:'교육',          i:'📚', c:'#56C8F0', bg:'rgba(86,200,240,0.15)'},
-  case:      {l:'사례관리',      i:'🗂', c:'#4ADE80', bg:'rgba(74,222,128,0.15)'},
-  duty:      {l:'당직근무',      i:'🌙', c:'#FFB347', bg:'rgba(255,179,71,0.15)'},
-  meeting:   {l:'회의 및 간담회',i:'📋', c:'#4F8EF7', bg:'rgba(79,142,247,0.15)'},
-  personal:  {l:'개인일정',      i:'🧍', c:'#FF5555', bg:'rgba(255,85,85,0.15)'},
-  other:     {l:'기타',          i:'📌', c:'#BF79F9', bg:'rgba(191,121,249,0.15)'}
+  education: {l:'교육',           i:'📚', c:'#5AC8FA', bg:'rgba(90,200,250,0.12)'},
+  case:      {l:'사례관리',       i:'🗂', c:'#30D158', bg:'rgba(48,209,88,0.12)'},
+  duty:      {l:'당직근무',       i:'🌙', c:'#FF9500', bg:'rgba(255,149,0,0.12)'},
+  meeting:   {l:'회의 및 간담회', i:'📋', c:'#0071E3', bg:'rgba(0,113,227,0.12)'},
+  personal:  {l:'개인일정',       i:'🧍', c:'#FF3B30', bg:'rgba(255,59,48,0.12)'},
+  other:     {l:'기타',           i:'📌', c:'#BF5AF2', bg:'rgba(191,90,242,0.12)'}
 };
 const REP = {none:'없음',daily:'매일',weekly:'매주',monthly:'매월',yearly:'매년'};
 const HOUR_H = 54;
 const MIN_YEAR = 2020, MAX_YEAR = 2032;
-const CFG_KEY = 'team_sched_fb_config';
 
-/* ─────────────────────────────────
-   State
-───────────────────────────────── */
-let db = null;
 let members = [];
 let events = [];
-let hiddenCats = JSON.parse(localStorage.getItem('team_sched_hidden_cats') || '[]');
+let hiddenCats = JSON.parse(localStorage.getItem('ts_hidden_cats') || '[]');
 let curDate = new Date();
 let curView = 'month';
 let editId = null;
 let popupId = null;
 let swIdx = 0;
 let searchQ = '';
-let unsubMembers = null;
-let unsubEvents  = null;
+let pwPassed = false; // 이 세션에서 비밀번호 통과 여부
 
 /* ─────────────────────────────────
-   Firebase Config
+   유틸
 ───────────────────────────────── */
-window.connectFirebase = async function() {
-  const url = document.getElementById('cfg-url').value.trim();
-  const key = document.getElementById('cfg-key').value.trim();
-  const pid = document.getElementById('cfg-pid').value.trim();
-  if (!url || !key || !pid) { toast('모든 항목을 입력해주세요.', 'err'); return; }
-  const cfg = { databaseURL: url, apiKey: key, projectId: pid,
-    authDomain: pid + '.firebaseapp.com',
-    storageBucket: pid + '.appspot.com' };
-  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-  await initFB(cfg);
-};
-
-window.showConfigScreen = function() {
-  document.getElementById('config-screen').classList.remove('hidden');
-  document.getElementById('app').style.display = 'none';
-};
-
-window.resetConfig = function() {
-  if (!confirm('Firebase 설정을 초기화하시겠습니까?')) return;
-  localStorage.removeItem(CFG_KEY);
-  location.reload();
-};
-
-async function initFB(cfg) {
-  document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('config-screen').classList.add('hidden');
-  try {
-    const existingApps = getApps();
-    const app = existingApps.length ? existingApps[0] : initializeApp(cfg);
-    db = getDatabase(app);
-    subscribeAll();
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('app').style.display = 'flex';
-    buildYearOptions();
-    setView('month');
-  } catch(e) {
-    document.getElementById('loading').classList.add('hidden');
-    toast('Firebase 연결 실패: ' + e.message, 'err');
-    showConfigScreen();
-  }
+function dStr(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function pDate(s) { if(!s)return null; const p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function weekStart(d) { const w=new Date(d); w.setDate(d.getDate()-d.getDay()); return w; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getMember(id) { return members.find(m=>m.id===id) || null; }
+function getEvColor(ev) { const m=getMember(ev.memberId); return m ? m.color : (CATS[ev.cat]?.c || '#0071E3'); }
+function getEvBg(ev) {
+  const m=getMember(ev.memberId);
+  if (m) return m.color + '22';
+  return CATS[ev.cat]?.bg || 'rgba(0,113,227,0.12)';
 }
 
-/* Auto-connect if config saved */
-(function() {
-  const raw = localStorage.getItem(CFG_KEY);
-  if (raw) {
-    try { initFB(JSON.parse(raw)); return; }
-    catch(e) {}
-  }
-  document.getElementById('loading').classList.add('hidden');
-  document.getElementById('config-screen').classList.remove('hidden');
-})();
-
-/* ─────────────────────────────────
-   Firebase Subscriptions
-───────────────────────────────── */
-function subscribeAll() {
-  // members
-  const mbRef = ref(db, `${ROOT}/members`);
-  onValue(mbRef, snap => {
-    members = [];
-    snap.forEach(child => members.push({ id: child.key, ...child.val() }));
-    renderSidebar();
-    render();
-  }, e => toast('팀원 동기화 오류', 'err'));
-
-  // events
-  const evRef = ref(db, `${ROOT}/events`);
-  onValue(evRef, snap => {
-    events = [];
-    snap.forEach(child => events.push({ id: child.key, ...child.val() }));
-    render();
-    toast('동기화됨', 'ok');
-  }, e => toast('일정 동기화 오류', 'err'));
+function occursOn(ev, d) {
+  const ds = dStr(d);
+  const start = ev.startDate || '';
+  const end = ev.endDate || start;
+  const rep = ev.repeat || 'none';
+  if (rep === 'none') return ds >= start && ds <= end;
+  if (ds < start) return false;
+  if (rep === 'daily') return true;
+  if (rep === 'weekly') { const sd=pDate(start); return d.getDay()===sd.getDay(); }
+  if (rep === 'monthly') { const sd=pDate(start); return d.getDate()===sd.getDate(); }
+  if (rep === 'yearly') { const sd=pDate(start); return d.getMonth()===sd.getMonth()&&d.getDate()===sd.getDate(); }
+  return false;
 }
 
 /* ─────────────────────────────────
    Toast
 ───────────────────────────────── */
 let toastTimer;
-function toast(msg, type = 'ok') {
+function toast(msg, type) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = 'on ' + type;
+  el.className = 'on' + (type==='err' ? ' err' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.classList.remove('on'); }, 2000);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 1800);
 }
-window.toast = toast;
+
+/* ─────────────────────────────────
+   Firebase 구독
+───────────────────────────────── */
+function subscribeAll() {
+  if (!db) {
+    toast('Firebase 연결 실패', 'err');
+    return;
+  }
+  db.ref(`${ROOT}/members`).on('value', snap => {
+    members = [];
+    snap.forEach(child => {
+      members.push({ id: child.key, ...child.val() });
+    });
+    renderSidebar();
+    render();
+    // 멤버 관리 모달이 열려있으면 목록 갱신
+    if (document.getElementById('mem-modal').classList.contains('on')) {
+      renderMemberList();
+    }
+  }, err => {
+    console.error('members 동기화 오류:', err);
+    toast('팀원 동기화 오류', 'err');
+  });
+
+  db.ref(`${ROOT}/events`).on('value', snap => {
+    events = [];
+    snap.forEach(child => {
+      events.push({ id: child.key, ...child.val() });
+    });
+    render();
+  }, err => {
+    console.error('events 동기화 오류:', err);
+    toast('일정 동기화 오류', 'err');
+  });
+}
 
 /* ─────────────────────────────────
    Sidebar
 ───────────────────────────────── */
-window.toggleSidebar = () => {
+function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sb-ov').classList.toggle('on');
-};
-window.closeSidebar = () => {
+}
+function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sb-ov').classList.remove('on');
-};
+}
 
 function renderSidebar() {
-  // members
-  let ml = '';
+  // 팀원
+  let mh = '';
   members.forEach(m => {
     const cnt = events.filter(e => e.memberId === m.id).length;
-    ml += `<div class="mb-item${m.hidden?' dim':''}" onclick="toggleMember('${m.id}')">
+    mh += `<div class="mb-item${m.hidden?' dim':''}" onclick="toggleMember('${m.id}')">
       <div class="mb-dot" style="background:${m.color}"></div>
       <div class="mb-name">${esc(m.name)}</div>
       <div class="mb-cnt">${cnt}</div>
     </div>`;
   });
-  document.getElementById('mb-list').innerHTML = ml;
+  document.getElementById('mb-list').innerHTML = mh;
 
-  // cats
-  let cl = '';
-  Object.entries(CATS).forEach(([key, info]) => {
+  // 카테고리
+  let ch = '';
+  for (const key in CATS) {
+    const info = CATS[key];
     const dim = hiddenCats.includes(key);
-    cl += `<div class="cat-item${dim?' dim':''}" onclick="toggleCat('${key}')">
+    ch += `<div class="cat-item${dim?' dim':''}" onclick="toggleCat('${key}')">
       <div class="cat-dot" style="background:${info.c}"></div>
       <div class="cat-name">${info.i} ${info.l}</div>
     </div>`;
-  });
-  document.getElementById('cat-list').innerHTML = cl;
+  }
+  document.getElementById('cat-list').innerHTML = ch;
 
-  // member select in modal
+  // 이벤트 모달의 담당자 셀렉트
   const ms = document.getElementById('ev-member');
-  let msHtml = '<option value="">미지정</option>';
-  members.forEach(m => { msHtml += `<option value="${m.id}">${esc(m.name)}</option>`; });
-  ms.innerHTML = msHtml;
-
-  // member manage list
-  renderMemManage();
+  if (ms) {
+    const prev = ms.value;
+    let html = '<option value="">미지정</option>';
+    members.forEach(m => html += `<option value="${m.id}">${esc(m.name)}</option>`);
+    ms.innerHTML = html;
+    if (prev) ms.value = prev;
+  }
 }
 
-window.toggleMember = id => {
+function toggleMember(id) {
   const m = members.find(x => x.id === id);
   if (!m) return;
-  update(ref(db, `${ROOT}/members/${id}`), { hidden: !m.hidden });
-};
-window.toggleCat = key => {
+  db.ref(`${ROOT}/members/${id}/hidden`).set(!m.hidden);
+}
+function toggleCat(key) {
   const idx = hiddenCats.indexOf(key);
   if (idx >= 0) hiddenCats.splice(idx, 1); else hiddenCats.push(key);
-  localStorage.setItem('team_sched_hidden_cats', JSON.stringify(hiddenCats));
-  renderSidebar(); render();
-};
+  localStorage.setItem('ts_hidden_cats', JSON.stringify(hiddenCats));
+  renderSidebar();
+  render();
+}
 
 /* ─────────────────────────────────
    Visibility
@@ -1117,455 +1295,574 @@ function isVisible(ev) {
 }
 
 /* ─────────────────────────────────
-   Date Utils
-───────────────────────────────── */
-function dStr(d) {
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function pDate(s) { if (!s) return null; const p = s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
-function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
-function weekStart(d) { const w=new Date(d); w.setDate(d.getDate()-d.getDay()); return w; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function getMember(id) { return members.find(m => m.id === id) || null; }
-function getEvColor(ev) { const m=getMember(ev.memberId); return m ? m.color : (CATS[ev.cat]?.c || '#4F8EF7'); }
-function getEvBg(ev)    { const m=getMember(ev.memberId); return m ? m.color+'22' : (CATS[ev.cat]?.bg || 'rgba(79,142,247,0.15)'); }
-
-function occursOn(ev, d) {
-  const ds = dStr(d), start = ev.startDate||'', end = ev.endDate||start, rep = ev.repeat||'none';
-  if (rep === 'none') return ds >= start && ds <= end;
-  if (ds < start) return false;
-  if (rep === 'daily') return true;
-  if (rep === 'weekly') { const sd=pDate(start); return d.getDay()===sd.getDay(); }
-  if (rep === 'monthly') { const sd=pDate(start); return d.getDate()===sd.getDate(); }
-  if (rep === 'yearly') { const sd=pDate(start); return d.getMonth()===sd.getMonth()&&d.getDate()===sd.getDate(); }
-  return false;
-}
-
-/* ─────────────────────────────────
    Navigation
 ───────────────────────────────── */
 function buildYearOptions() {
   const sel = document.getElementById('sel-year');
   sel.innerHTML = '';
-  for (let y=MIN_YEAR; y<=MAX_YEAR; y++) {
+  for (let y = MIN_YEAR; y <= MAX_YEAR; y++) {
     const o = document.createElement('option');
-    o.value = y; o.textContent = y + '년'; sel.appendChild(o);
+    o.value = y;
+    o.textContent = y + '년';
+    sel.appendChild(o);
   }
   sel.value = curDate.getFullYear();
 }
-
 function syncSelectors() {
   const selY = document.getElementById('sel-year');
   const selM = document.getElementById('sel-month');
   const ymWrap = document.getElementById('ym-wrap');
-  const wkLbl  = document.getElementById('week-label');
-  if (!selY||!selM||!ymWrap||!wkLbl) return;
+  const wkLbl = document.getElementById('week-label');
   if (curView === 'month') {
-    ymWrap.style.display='flex'; wkLbl.style.display='none';
+    ymWrap.style.display = 'flex';
+    wkLbl.style.display = 'none';
     if (selY.options.length) selY.value = curDate.getFullYear();
     selM.value = curDate.getMonth();
   } else {
-    ymWrap.style.display='none'; wkLbl.style.display='block';
-    const ws=weekStart(curDate), we=new Date(ws); we.setDate(ws.getDate()+6);
+    ymWrap.style.display = 'none';
+    wkLbl.style.display = 'block';
+    const ws = weekStart(curDate);
+    const we = new Date(ws); we.setDate(ws.getDate()+6);
     wkLbl.textContent = curDate.getFullYear()+'년 '+(ws.getMonth()+1)+'/'+ws.getDate()+' – '+(we.getMonth()+1)+'/'+we.getDate();
   }
 }
-
-window.jumpYM = () => {
-  const y = parseInt(document.getElementById('sel-year').value,10);
-  const m = parseInt(document.getElementById('sel-month').value,10);
-  curDate = new Date(y,m,1); render();
-};
-window.nav = dir => {
-  if (curView==='month') {
-    let y=curDate.getFullYear(), m=curDate.getMonth()+dir;
-    if (m<0){y--;m=11;} if(m>11){y++;m=0;}
-    if(y<MIN_YEAR||y>MAX_YEAR)return;
-    curDate=new Date(y,m,1);
+function jumpYM() {
+  const y = parseInt(document.getElementById('sel-year').value, 10);
+  const m = parseInt(document.getElementById('sel-month').value, 10);
+  curDate = new Date(y, m, 1);
+  render();
+}
+function nav(dir) {
+  if (curView === 'month') {
+    let y = curDate.getFullYear(), m = curDate.getMonth() + dir;
+    if (m < 0) { y--; m = 11; }
+    if (m > 11) { y++; m = 0; }
+    if (y < MIN_YEAR || y > MAX_YEAR) return;
+    curDate = new Date(y, m, 1);
   } else {
-    const next=new Date(curDate); next.setDate(next.getDate()+dir*7);
-    if(next.getFullYear()<MIN_YEAR||next.getFullYear()>MAX_YEAR)return;
-    curDate=next;
+    const next = new Date(curDate);
+    next.setDate(next.getDate() + dir * 7);
+    if (next.getFullYear() < MIN_YEAR || next.getFullYear() > MAX_YEAR) return;
+    curDate = next;
   }
   render();
-};
-window.goToday = () => { curDate=new Date(); render(); };
-window.setView = v => {
-  curView=v;
-  document.getElementById('mv').style.display = (v==='month')?'':'none';
-  document.getElementById('wv').style.display = (v==='week')?'':'none';
-  ['vt-month','vt-week','mvt-month','mvt-week'].forEach(id => {
-    const el=document.getElementById(id); if(!el)return;
-    const isMo=id.includes('month');
-    el.classList.toggle('on', isMo ? v==='month' : v==='week');
-  });
+}
+function goToday() { curDate = new Date(); render(); }
+function setView(v) {
+  curView = v;
+  document.getElementById('mv').style.display = (v==='month') ? '' : 'none';
+  document.getElementById('wv').style.display = (v==='week') ? '' : 'none';
+  document.getElementById('vt-month').classList.toggle('on', v==='month');
+  document.getElementById('vt-week').classList.toggle('on', v==='week');
   render();
-};
+}
 
 /* ─────────────────────────────────
    Render
 ───────────────────────────────── */
 function render() {
   syncSelectors();
-  if (curView==='month') renderMonth(); else renderWeek();
+  if (curView === 'month') renderMonth();
+  else renderWeek();
 }
 
 function renderMonth() {
   const grid = document.getElementById('month-grid');
   const today = new Date();
-  const y=curDate.getFullYear(), mo=curDate.getMonth();
-  const first=new Date(y,mo,1), last=new Date(y,mo+1,0);
-  const startDow=first.getDay();
-  const total=Math.ceil((startDow+last.getDate())/7)*7;
-  let html='';
-  for(let i=0;i<total;i++){
-    const offset=i-startDow, d=new Date(y,mo,1+offset), ds=dStr(d);
-    const isOther=d.getMonth()!==mo, isToday=sameDay(d,today), dow=d.getDay();
-    const dayEvs=events.filter(ev=>isVisible(ev)&&occursOn(ev,d))
-      .sort((a,b)=>(a.startTime||'00:00')>(b.startTime||'00:00')?1:-1);
-    let cls='dc'+(isOther?' other':'')+(dow===0?' sun':'')+(dow===6?' sat':'');
-    const dnHtml=isToday?`<div class="dn"><span class="dn-today">${d.getDate()}</span></div>`:`<div class="dn">${d.getDate()}</div>`;
-    const maxShow=3;
-    let chips='';
-    dayEvs.slice(0,maxShow).forEach(ev=>{
-      chips+=`<div class="ev-chip" style="color:${getEvColor(ev)};background:${getEvBg(ev)};border-left:2px solid ${getEvColor(ev)}"
+  const y = curDate.getFullYear(), mo = curDate.getMonth();
+  const first = new Date(y, mo, 1), last = new Date(y, mo+1, 0);
+  const startDow = first.getDay();
+  const total = Math.ceil((startDow + last.getDate()) / 7) * 7;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const offset = i - startDow;
+    const d = new Date(y, mo, 1 + offset);
+    const ds = dStr(d);
+    const isOther = d.getMonth() !== mo;
+    const isToday = sameDay(d, today);
+    const dow = d.getDay();
+    const dayEvs = events.filter(ev => isVisible(ev) && occursOn(ev, d))
+      .sort((a,b) => (a.startTime||'00:00') > (b.startTime||'00:00') ? 1 : -1);
+    let cls = 'dc';
+    if (isOther) cls += ' other';
+    if (dow === 0) cls += ' sun';
+    if (dow === 6) cls += ' sat';
+    const dnHtml = isToday
+      ? `<div class="dn"><span class="dn-today">${d.getDate()}</span></div>`
+      : `<div class="dn">${d.getDate()}</div>`;
+    const maxShow = 3;
+    let chips = '';
+    dayEvs.slice(0, maxShow).forEach(ev => {
+      const col = getEvColor(ev);
+      const bg = getEvBg(ev);
+      chips += `<div class="ev-chip" style="color:${col};background:${bg};border-left:2px solid ${col}"
         onclick="event.stopPropagation();showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
     });
-    const more=dayEvs.length-maxShow;
-    if(more>0) chips+=`<div class="more-lbl">+${more}개</div>`;
-    html+=`<div class="${cls}" onclick="openNewEventOnDate('${ds}')">${dnHtml}${chips}</div>`;
+    const more = dayEvs.length - maxShow;
+    if (more > 0) chips += `<div class="more-lbl">+${more}개</div>`;
+    html += `<div class="${cls}" onclick="openNewEventOnDate('${ds}')">${dnHtml}${chips}</div>`;
   }
-  grid.innerHTML=html;
+  grid.innerHTML = html;
 }
 
 function renderWeek() {
-  const today=new Date(), ws=weekStart(curDate);
-  const days=[]; for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);days.push(d);}
-  const WDAYS=['일','월','화','수','목','금','토'];
+  const today = new Date();
+  const ws = weekStart(curDate);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ws); d.setDate(ws.getDate() + i);
+    days.push(d);
+  }
+  const WDAYS = ['일','월','화','수','목','금','토'];
   // header
-  let hh='<div class="wk-gut"></div>';
-  days.forEach(d=>{
-    const isT=sameDay(d,today);
-    let cls='wk-dc'+(isT?' today':'')+(d.getDay()===0?' sun':'')+(d.getDay()===6?' sat':'');
-    hh+=`<div class="${cls}"><div class="wdn">${WDAYS[d.getDay()]}</div><div class="wdd">${d.getDate()}</div></div>`;
+  let hh = '<div class="wk-gut"></div>';
+  days.forEach(d => {
+    const isT = sameDay(d, today);
+    let cls = 'wk-dc';
+    if (isT) cls += ' today';
+    if (d.getDay() === 0) cls += ' sun';
+    if (d.getDay() === 6) cls += ' sat';
+    hh += `<div class="${cls}"><div class="wdn">${WDAYS[d.getDay()]}</div><div class="wdd">${d.getDate()}</div></div>`;
   });
-  document.getElementById('wk-head').innerHTML=hh;
+  document.getElementById('wk-head').innerHTML = hh;
   // all-day
-  let adh='';
-  days.forEach(d=>{
-    let col='';
-    events.filter(ev=>ev.allday&&isVisible(ev)&&occursOn(ev,d)).forEach(ev=>{
-      col+=`<div class="ad-chip" style="color:${getEvColor(ev)};background:${getEvBg(ev)}"
+  let adh = '';
+  days.forEach(d => {
+    let col = '';
+    events.filter(ev => ev.allday && isVisible(ev) && occursOn(ev, d)).forEach(ev => {
+      col += `<div class="ad-chip" style="color:${getEvColor(ev)};background:${getEvBg(ev)}"
         onclick="showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
     });
-    adh+=`<div class="ad-col">${col}</div>`;
+    adh += `<div class="ad-col">${col}</div>`;
   });
-  document.getElementById('ad-cols').innerHTML=adh;
-  // time grid
-  const totalH=24*HOUR_H;
-  let tch='';
-  for(let h=0;h<24;h++){
-    const lbl=h===0?'':(h<12?h+'am':(h===12?'12pm':(h-12)+'pm'));
-    tch+=`<div class="t-lbl" style="top:${h*HOUR_H}px">${lbl}</div>`;
+  document.getElementById('ad-cols').innerHTML = adh;
+  // time column
+  const totalH = 24 * HOUR_H;
+  let tch = '';
+  for (let h = 0; h < 24; h++) {
+    const lbl = h === 0 ? '' : (h < 12 ? h+'am' : (h === 12 ? '12pm' : (h-12)+'pm'));
+    tch += `<div class="t-lbl" style="top:${h*HOUR_H}px">${lbl}</div>`;
   }
-  const tc=document.getElementById('wk-tcol');
-  tc.style.cssText=`height:${totalH}px;position:relative`;
-  tc.innerHTML=tch;
-  let dh='';
-  days.forEach(d=>{
-    const ds=dStr(d), isT=sameDay(d,today);
-    let lines='';
-    for(let h=0;h<24;h++){
-      lines+=`<div class="h-line" style="top:${h*HOUR_H}px"></div><div class="h-half" style="top:${h*HOUR_H+HOUR_H/2}px"></div>`;
+  const tc = document.getElementById('wk-tcol');
+  tc.style.cssText = `height:${totalH}px;position:relative`;
+  tc.innerHTML = tch;
+  // day columns
+  let dh = '';
+  days.forEach(d => {
+    const ds = dStr(d);
+    const isT = sameDay(d, today);
+    let lines = '';
+    for (let h = 0; h < 24; h++) {
+      lines += `<div class="h-line" style="top:${h*HOUR_H}px"></div><div class="h-half" style="top:${h*HOUR_H+HOUR_H/2}px"></div>`;
     }
-    let now='';
-    if(isT){
-      const n=new Date();
-      const nowTop=Math.round(((n.getHours()*60+n.getMinutes())/(24*60))*totalH);
-      now=`<div class="now-line" style="top:${nowTop}px"><div class="now-dot"></div></div>`;
+    let now = '';
+    if (isT) {
+      const n = new Date();
+      const nowTop = Math.round(((n.getHours()*60 + n.getMinutes()) / (24*60)) * totalH);
+      now = `<div class="now-line" style="top:${nowTop}px"><div class="now-dot"></div></div>`;
     }
-    let evh='';
-    events.filter(ev=>!ev.allday&&isVisible(ev)&&occursOn(ev,d)).forEach(ev=>{
-      const st=ev.startTime||'00:00',et=ev.endTime||'01:00';
-      const [sh,sm]=st.split(':').map(Number),[eh,em]=et.split(':').map(Number);
-      const topPx=Math.round(((sh*60+sm)/(24*60))*totalH);
-      const botPx=Math.round(((eh*60+em)/(24*60))*totalH);
-      const hPx=Math.max(24,botPx-topPx);
-      const mem=getMember(ev.memberId);
-      evh+=`<div class="wk-ev" style="top:${topPx}px;height:${hPx}px;background:${getEvBg(ev)};border-left-color:${getEvColor(ev)};color:${getEvColor(ev)}"
+    let evh = '';
+    events.filter(ev => !ev.allday && isVisible(ev) && occursOn(ev, d)).forEach(ev => {
+      const st = ev.startTime || '00:00';
+      const et = ev.endTime || '01:00';
+      const [sh, sm] = st.split(':').map(Number);
+      const [eh, em] = et.split(':').map(Number);
+      const topPx = Math.round(((sh*60+sm)/(24*60)) * totalH);
+      const botPx = Math.round(((eh*60+em)/(24*60)) * totalH);
+      const hPx = Math.max(24, botPx - topPx);
+      const mem = getMember(ev.memberId);
+      evh += `<div class="wk-ev" style="top:${topPx}px;height:${hPx}px;background:${getEvBg(ev)};border-left-color:${getEvColor(ev)};color:${getEvColor(ev)}"
         onclick="event.stopPropagation();showPopup('${ev.id}',event)">
         <div class="wk-ev-title">${esc(ev.title)}</div>
-        ${hPx>32?`<div class="wk-ev-time">${st}${mem?' · '+esc(mem.name):''}</div>`:''}
+        ${hPx > 32 ? `<div class="wk-ev-time">${st}${mem?' · '+esc(mem.name):''}</div>` : ''}
       </div>`;
     });
-    dh+=`<div class="wk-lane${isT?' today-bg':''}" style="height:${totalH}px;position:relative" data-date="${ds}">${lines}${now}${evh}</div>`;
+    dh += `<div class="wk-lane${isT?' today-bg':''}" style="height:${totalH}px;position:relative" data-date="${ds}">${lines}${now}${evh}</div>`;
   });
-  document.getElementById('wk-days').innerHTML=dh;
-  const body=document.getElementById('wk-body');
-  if(!body._scrolled){body.scrollTop=Math.max(0,(new Date().getHours()-1)*HOUR_H);body._scrolled=true;}
+  document.getElementById('wk-days').innerHTML = dh;
+  const body = document.getElementById('wk-body');
+  if (!body._scrolled) {
+    body.scrollTop = Math.max(0, (new Date().getHours()-1) * HOUR_H);
+    body._scrolled = true;
+  }
 }
 
 /* ─────────────────────────────────
    Popup
 ───────────────────────────────── */
-window.showPopup = (id, e) => {
-  const ev=events.find(x=>x.id===id); if(!ev)return;
-  popupId=id;
-  const col=getEvColor(ev), mem=getMember(ev.memberId), cat=CATS[ev.cat];
-  document.getElementById('pp-bar').style.background=col;
-  document.getElementById('pp-title').textContent=ev.title||'';
-  let dateStr=(ev.startDate||'').replace(/-/g,'/');
-  if(ev.endDate&&ev.endDate!==ev.startDate) dateStr+=' ~ '+ev.endDate.replace(/-/g,'/');
-  document.getElementById('pp-date').textContent=dateStr;
-  const timeR=document.getElementById('pp-time-r');
-  if(ev.allday){timeR.style.display='none';}
-  else{timeR.style.display='';document.getElementById('pp-time').textContent=(ev.startTime||'')+' – '+(ev.endTime||'');}
-  const memR=document.getElementById('pp-mem-r');
-  if(mem){memR.style.display='';document.getElementById('pp-mem').textContent=mem.name;}else memR.style.display='none';
-  const catR=document.getElementById('pp-cat-r');
-  if(cat){catR.style.display='';document.getElementById('pp-cat').textContent=cat.i+' '+cat.l;}else catR.style.display='none';
-  const repR=document.getElementById('pp-rep-r');
-  if(ev.repeat&&ev.repeat!=='none'){repR.style.display='';document.getElementById('pp-rep').textContent=REP[ev.repeat]||'';}else repR.style.display='none';
-  const memoR=document.getElementById('pp-memo-r');
-  if(ev.memo){memoR.style.display='';document.getElementById('pp-memo').textContent=ev.memo;}else memoR.style.display='none';
-  const popup=document.getElementById('popup');
+function showPopup(id, e) {
+  const ev = events.find(x => x.id === id);
+  if (!ev) return;
+  popupId = id;
+  const col = getEvColor(ev);
+  const mem = getMember(ev.memberId);
+  const cat = CATS[ev.cat];
+  document.getElementById('pp-bar').style.background = col;
+  document.getElementById('pp-title').textContent = ev.title || '';
+  let dateStr = (ev.startDate || '').replace(/-/g, '/');
+  if (ev.endDate && ev.endDate !== ev.startDate) dateStr += ' ~ ' + ev.endDate.replace(/-/g, '/');
+  document.getElementById('pp-date').textContent = dateStr;
+  const timeR = document.getElementById('pp-time-r');
+  if (ev.allday) timeR.style.display = 'none';
+  else { timeR.style.display = ''; document.getElementById('pp-time').textContent = (ev.startTime||'') + ' – ' + (ev.endTime||''); }
+  const memR = document.getElementById('pp-mem-r');
+  if (mem) { memR.style.display = ''; document.getElementById('pp-mem').textContent = mem.name; }
+  else memR.style.display = 'none';
+  const catR = document.getElementById('pp-cat-r');
+  if (cat) { catR.style.display = ''; document.getElementById('pp-cat').textContent = cat.i + ' ' + cat.l; }
+  else catR.style.display = 'none';
+  const repR = document.getElementById('pp-rep-r');
+  if (ev.repeat && ev.repeat !== 'none') { repR.style.display = ''; document.getElementById('pp-rep').textContent = REP[ev.repeat] || ''; }
+  else repR.style.display = 'none';
+  const memoR = document.getElementById('pp-memo-r');
+  if (ev.memo) { memoR.style.display = ''; document.getElementById('pp-memo').textContent = ev.memo; }
+  else memoR.style.display = 'none';
+  const popup = document.getElementById('popup');
   popup.classList.add('on');
-  const vw=window.innerWidth,vh=window.innerHeight,pw=290,ph=260;
-  let x=e.clientX+10,y=e.clientY+10;
-  if(x+pw>vw)x=Math.max(8,e.clientX-pw-8);
-  if(y+ph>vh)y=Math.max(8,vh-ph-8);
-  if(x<8)x=8;
-  popup.style.left=x+'px';popup.style.top=y+'px';
-};
-window.closePopup = () => { document.getElementById('popup').classList.remove('on'); popupId=null; };
-window.editFromPopup = () => { if(popupId)editEvent(popupId); };
-window.delFromPopup = () => {
-  if(!popupId)return;
-  if(!confirm('삭제하시겠습니까?'))return;
-  remove(ref(db,`${ROOT}/events/${popupId}`));
+  const vw = window.innerWidth, vh = window.innerHeight, pw = 296, ph = 260;
+  let x = e.clientX + 10, y = e.clientY + 10;
+  if (x + pw > vw) x = Math.max(8, e.clientX - pw - 8);
+  if (y + ph > vh) y = Math.max(8, vh - ph - 8);
+  if (x < 8) x = 8;
+  popup.style.left = x + 'px';
+  popup.style.top = y + 'px';
+}
+function closePopup() { document.getElementById('popup').classList.remove('on'); popupId = null; }
+function editFromPopup() { if (popupId) editEvent(popupId); }
+function delFromPopup() {
+  if (!popupId) return;
+  if (!confirm('삭제하시겠습니까?')) return;
+  db.ref(`${ROOT}/events/${popupId}`).remove();
   closePopup();
-  toast('일정이 삭제되었습니다.','ok');
-};
+  toast('일정이 삭제되었습니다.');
+}
 
 /* ─────────────────────────────────
    Event CRUD
 ───────────────────────────────── */
-window.openNewEvent = () => {
-  editId=null;
-  document.getElementById('ev-modal-title').textContent='새 일정';
-  document.getElementById('ev-del-btn').style.display='none';
-  document.getElementById('ev-title').value='';
-  document.getElementById('ev-cat').value='education';
-  document.getElementById('ev-member').value='';
-  const ds=dStr(curDate);
-  document.getElementById('ev-sd').value=ds;
-  document.getElementById('ev-ed').value=ds;
-  document.getElementById('ev-allday').checked=false;
-  document.getElementById('ev-st').value='09:00';
-  document.getElementById('ev-et').value='10:00';
-  document.getElementById('ev-repeat').value='none';
-  document.getElementById('ev-memo').value='';
-  document.getElementById('time-area').style.display='';
+function openNewEvent() {
+  editId = null;
+  document.getElementById('ev-modal-title').textContent = '새 일정';
+  document.getElementById('ev-del-btn').style.display = 'none';
+  document.getElementById('ev-title').value = '';
+  document.getElementById('ev-cat').value = 'education';
+  document.getElementById('ev-member').value = '';
+  const ds = dStr(curDate);
+  document.getElementById('ev-sd').value = ds;
+  document.getElementById('ev-ed').value = ds;
+  document.getElementById('ev-allday').checked = false;
+  document.getElementById('ev-st').value = '09:00';
+  document.getElementById('ev-et').value = '10:00';
+  document.getElementById('ev-repeat').value = 'none';
+  document.getElementById('ev-memo').value = '';
+  document.getElementById('time-area').style.display = '';
   document.getElementById('ev-modal').classList.add('on');
-  setTimeout(()=>document.getElementById('ev-title').focus(),250);
-};
-window.openNewEventOnDate = ds => {
+  setTimeout(() => document.getElementById('ev-title').focus(), 200);
+}
+function openNewEventOnDate(ds) {
   openNewEvent();
-  document.getElementById('ev-sd').value=ds;
-  document.getElementById('ev-ed').value=ds;
-};
+  document.getElementById('ev-sd').value = ds;
+  document.getElementById('ev-ed').value = ds;
+}
 function editEvent(id) {
-  const ev=events.find(x=>x.id===id); if(!ev)return;
-  editId=id;
-  document.getElementById('ev-modal-title').textContent='일정 수정';
-  document.getElementById('ev-del-btn').style.display='';
-  document.getElementById('ev-title').value=ev.title||'';
-  document.getElementById('ev-cat').value=ev.cat||'education';
-  document.getElementById('ev-member').value=ev.memberId||'';
-  document.getElementById('ev-sd').value=ev.startDate||'';
-  document.getElementById('ev-ed').value=ev.endDate||ev.startDate||'';
-  document.getElementById('ev-allday').checked=!!ev.allday;
-  document.getElementById('ev-st').value=ev.startTime||'09:00';
-  document.getElementById('ev-et').value=ev.endTime||'10:00';
-  document.getElementById('ev-repeat').value=ev.repeat||'none';
-  document.getElementById('ev-memo').value=ev.memo||'';
-  document.getElementById('time-area').style.display=ev.allday?'none':'';
+  const ev = events.find(x => x.id === id);
+  if (!ev) return;
+  editId = id;
+  document.getElementById('ev-modal-title').textContent = '일정 수정';
+  document.getElementById('ev-del-btn').style.display = '';
+  document.getElementById('ev-title').value = ev.title || '';
+  document.getElementById('ev-cat').value = ev.cat || 'education';
+  document.getElementById('ev-member').value = ev.memberId || '';
+  document.getElementById('ev-sd').value = ev.startDate || '';
+  document.getElementById('ev-ed').value = ev.endDate || ev.startDate || '';
+  document.getElementById('ev-allday').checked = !!ev.allday;
+  document.getElementById('ev-st').value = ev.startTime || '09:00';
+  document.getElementById('ev-et').value = ev.endTime || '10:00';
+  document.getElementById('ev-repeat').value = ev.repeat || 'none';
+  document.getElementById('ev-memo').value = ev.memo || '';
+  document.getElementById('time-area').style.display = ev.allday ? 'none' : '';
   closePopup();
   document.getElementById('ev-modal').classList.add('on');
 }
-window.toggleAllday = () => {
-  document.getElementById('time-area').style.display = document.getElementById('ev-allday').checked?'none':'';
-};
-window.saveEvent = () => {
-  const title=document.getElementById('ev-title').value.trim();
-  if(!title){alert('제목을 입력하세요.');return;}
-  const sd=document.getElementById('ev-sd').value;
-  const ed=document.getElementById('ev-ed').value||sd;
-  const ev={
-    title, cat:document.getElementById('ev-cat').value,
-    memberId:document.getElementById('ev-member').value,
-    startDate:sd, endDate:ed,
-    allday:document.getElementById('ev-allday').checked,
-    startTime:document.getElementById('ev-st').value,
-    endTime:document.getElementById('ev-et').value,
-    repeat:document.getElementById('ev-repeat').value,
-    memo:document.getElementById('ev-memo').value.trim(),
-    updatedAt:Date.now()
+function toggleAllday() {
+  document.getElementById('time-area').style.display = document.getElementById('ev-allday').checked ? 'none' : '';
+}
+function saveEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  if (!title) { toast('제목을 입력하세요.', 'err'); return; }
+  const sd = document.getElementById('ev-sd').value;
+  const ed = document.getElementById('ev-ed').value || sd;
+  const ev = {
+    title,
+    cat: document.getElementById('ev-cat').value,
+    memberId: document.getElementById('ev-member').value || '',
+    startDate: sd,
+    endDate: ed,
+    allday: document.getElementById('ev-allday').checked,
+    startTime: document.getElementById('ev-st').value,
+    endTime: document.getElementById('ev-et').value,
+    repeat: document.getElementById('ev-repeat').value,
+    memo: document.getElementById('ev-memo').value.trim(),
+    updatedAt: Date.now()
   };
-  if(editId){
-    update(ref(db,`${ROOT}/events/${editId}`),ev);
-    toast('일정이 수정되었습니다.','ok');
-  }else{
-    push(ref(db,`${ROOT}/events`),ev);
-    toast('일정이 추가되었습니다.','ok');
+  if (editId) {
+    db.ref(`${ROOT}/events/${editId}`).update(ev)
+      .then(() => { closeEvModal(); toast('일정이 수정되었습니다.'); })
+      .catch(e => toast('저장 실패: ' + e.message, 'err'));
+  } else {
+    db.ref(`${ROOT}/events`).push(ev)
+      .then(() => { closeEvModal(); toast('일정이 추가되었습니다.'); })
+      .catch(e => toast('저장 실패: ' + e.message, 'err'));
   }
+}
+function closeEvModal() { document.getElementById('ev-modal').classList.remove('on'); }
+function delCurEvent() {
+  if (!editId) return;
+  if (!confirm('삭제하시겠습니까?')) return;
+  db.ref(`${ROOT}/events/${editId}`).remove();
   closeEvModal();
-};
-window.closeEvModal = () => document.getElementById('ev-modal').classList.remove('on');
-window.delCurEvent = () => {
-  if(!editId)return;
-  if(!confirm('삭제하시겠습니까?'))return;
-  remove(ref(db,`${ROOT}/events/${editId}`));
-  closeEvModal();
-  toast('일정이 삭제되었습니다.','ok');
-};
+  toast('일정이 삭제되었습니다.');
+}
 
 /* ─────────────────────────────────
-   Member Management
+   Member Manager — 통합 단일 모달
 ───────────────────────────────── */
-window.openMemberModal = () => {
-  document.getElementById('mem-name').value='';
-  swIdx=0; renderSwatches(); renderMemManage();
-  document.getElementById('mem-modal').classList.add('on');
-};
-window.closeMemModal = () => document.getElementById('mem-modal').classList.remove('on');
+function openMemberManager() {
+  const modal = document.getElementById('mem-modal');
+  const pwStep = document.getElementById('pw-step');
+  const mgrStep = document.getElementById('mgr-step');
+  const title = document.getElementById('mem-modal-title');
+
+  if (pwPassed) {
+    pwStep.style.display = 'none';
+    mgrStep.style.display = 'flex';
+    title.textContent = '팀원 관리';
+    renderSwatches();
+    renderMemberList();
+    document.getElementById('mem-name').value = '';
+    modal.classList.add('on');
+    setTimeout(() => document.getElementById('mem-name').focus(), 200);
+  } else {
+    pwStep.style.display = 'flex';
+    mgrStep.style.display = 'none';
+    title.textContent = '🔒 팀원 관리';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').style.display = 'none';
+    modal.classList.add('on');
+    setTimeout(() => document.getElementById('pw-input').focus(), 200);
+  }
+}
+function closeMemberModal() {
+  document.getElementById('mem-modal').classList.remove('on');
+}
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val !== ADMIN_PW) {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    return;
+  }
+  pwPassed = true;
+  // 같은 모달 내에서 화면만 전환
+  document.getElementById('pw-step').style.display = 'none';
+  document.getElementById('mgr-step').style.display = 'flex';
+  document.getElementById('mem-modal-title').textContent = '팀원 관리';
+  renderSwatches();
+  renderMemberList();
+  document.getElementById('mem-name').value = '';
+  setTimeout(() => document.getElementById('mem-name').focus(), 100);
+}
 function renderSwatches() {
-  document.getElementById('swatches').innerHTML = COLORS.map((c,i)=>
+  document.getElementById('swatches').innerHTML = COLORS.map((c, i) =>
     `<div class="sw${i===swIdx?' on':''}" style="background:${c}" onclick="pickSwatch(${i})"></div>`
   ).join('');
 }
-window.pickSwatch = i => { swIdx=i; renderSwatches(); };
-window.addMember = () => {
-  const name=document.getElementById('mem-name').value.trim();
-  if(!name){alert('이름을 입력하세요.');return;}
-  push(ref(db,`${ROOT}/members`),{name,color:COLORS[swIdx],hidden:false});
-  document.getElementById('mem-name').value='';
-  toast('팀원이 추가되었습니다.','ok');
-};
-window.removeMember = id => {
-  if(!confirm('팀원을 삭제하시겠습니까?'))return;
-  remove(ref(db,`${ROOT}/members/${id}`));
-  events.filter(e=>e.memberId===id).forEach(e=>{
-    update(ref(db,`${ROOT}/events/${e.id}`),{memberId:''});
-  });
-  toast('팀원이 삭제되었습니다.','ok');
-};
-function renderMemManage() {
-  const el=document.getElementById('mem-manage');
-  if(!el)return;
-  el.innerHTML = members.map(m=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:8px;margin-bottom:2px">
-      <div style="width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
-      <div style="flex:1;font-size:14px;color:var(--text)">${esc(m.name)}</div>
-      <button onclick="removeMember('${m.id}')" style="background:none;border:none;color:var(--text-faint);font-size:12px;padding:2px 8px;border-radius:var(--r-sm)">✕</button>
-    </div>`).join('');
+function pickSwatch(i) { swIdx = i; renderSwatches(); }
+
+function renderMemberList() {
+  const el = document.getElementById('mem-list');
+  if (!el) return;
+  if (members.length === 0) {
+    el.innerHTML = '<div class="empty-msg">등록된 팀원이 없습니다.</div>';
+    return;
+  }
+  el.innerHTML = members.map(m => `
+    <div class="mem-row">
+      <div class="dot" style="background:${m.color}"></div>
+      <div class="name">${esc(m.name)}</div>
+      <button onclick="removeMember('${m.id}','${esc(m.name)}')">삭제</button>
+    </div>
+  `).join('');
+}
+
+function addMember() {
+  const nameEl = document.getElementById('mem-name');
+  const name = nameEl.value.trim();
+  if (!name) { toast('이름을 입력하세요.', 'err'); return; }
+  if (!db) { toast('Firebase 연결 안됨', 'err'); return; }
+
+  const newMember = { name, color: COLORS[swIdx], hidden: false };
+  // Firebase에 저장 — onValue가 자동으로 목록 갱신
+  db.ref(`${ROOT}/members`).push(newMember)
+    .then(() => {
+      nameEl.value = '';
+      nameEl.focus();
+      toast('"' + name + '" 팀원이 추가되었습니다.');
+    })
+    .catch(e => {
+      console.error('addMember 실패:', e);
+      toast('저장 실패: ' + e.message, 'err');
+    });
+}
+
+function removeMember(id, name) {
+  if (!confirm(`'${name}' 팀원을 삭제하시겠습니까?`)) return;
+  db.ref(`${ROOT}/members/${id}`).remove()
+    .then(() => {
+      // 해당 팀원의 일정에서 memberId 비우기
+      events.filter(e => e.memberId === id).forEach(e => {
+        db.ref(`${ROOT}/events/${e.id}/memberId`).set('');
+      });
+      toast('팀원이 삭제되었습니다.');
+    })
+    .catch(e => toast('삭제 실패: ' + e.message, 'err'));
 }
 
 /* ─────────────────────────────────
    Search
 ───────────────────────────────── */
-window.openSearch = () => {
+function openSearch() {
   document.getElementById('search-ov').classList.add('on');
-  setTimeout(()=>document.getElementById('search-inp').focus(),100);
-};
-window.closeSearch = () => {
+  setTimeout(() => document.getElementById('search-inp').focus(), 100);
+}
+function closeSearch() {
   document.getElementById('search-ov').classList.remove('on');
-  document.getElementById('search-inp').value='';
-  searchQ=''; render();
-};
-window.doSearch = val => { searchQ=(val||'').trim().toLowerCase(); render(); };
+  document.getElementById('search-inp').value = '';
+  searchQ = '';
+  render();
+}
+function doSearch(val) {
+  searchQ = (val || '').trim().toLowerCase();
+  render();
+}
 
 /* ─────────────────────────────────
    ICS Export
 ───────────────────────────────── */
-function pad2(n){return String(n).padStart(2,'0');}
-function toICSDate(ds,ts){
-  if(!ds)return'';
-  const p=ds.split('-');
-  if(ts){const t=ts.split(':');return p[0]+p[1]+p[2]+'T'+t[0]+t[1]+'00';}
+function pad2(n) { return String(n).padStart(2, '0'); }
+function toICSDate(ds, ts) {
+  if (!ds) return '';
+  const p = ds.split('-');
+  if (ts) { const t = ts.split(':'); return p[0]+p[1]+p[2]+'T'+t[0]+t[1]+'00'; }
   return p[0]+p[1]+p[2];
 }
-window.exportICS = () => {
-  if(!events.length){alert('내보낼 일정이 없습니다.');return;}
-  const now=new Date();
-  const stamp=toICSDate(dStr(now),pad2(now.getHours())+':'+pad2(now.getMinutes()));
-  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TeamScheduler//KR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-  events.forEach(ev=>{
-    const cat=CATS[ev.cat];
-    lines.push('BEGIN:VEVENT','UID:'+ev.id+'@teamscheduler','DTSTAMP:'+stamp);
-    if(ev.allday){lines.push('DTSTART;VALUE=DATE:'+toICSDate(ev.startDate),'DTEND;VALUE=DATE:'+toICSDate(ev.endDate||ev.startDate));}
-    else{lines.push('DTSTART:'+toICSDate(ev.startDate,ev.startTime),'DTEND:'+toICSDate(ev.endDate||ev.startDate,ev.endTime));}
+function exportICS() {
+  if (!events.length) { toast('내보낼 일정이 없습니다.', 'err'); return; }
+  const now = new Date();
+  const stamp = toICSDate(dStr(now), pad2(now.getHours())+':'+pad2(now.getMinutes()));
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TeamScheduler//KR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  events.forEach(ev => {
+    const cat = CATS[ev.cat];
+    lines.push('BEGIN:VEVENT', 'UID:'+ev.id+'@teamscheduler', 'DTSTAMP:'+stamp);
+    if (ev.allday) {
+      lines.push('DTSTART;VALUE=DATE:'+toICSDate(ev.startDate));
+      lines.push('DTEND;VALUE=DATE:'+toICSDate(ev.endDate||ev.startDate));
+    } else {
+      lines.push('DTSTART:'+toICSDate(ev.startDate, ev.startTime));
+      lines.push('DTEND:'+toICSDate(ev.endDate||ev.startDate, ev.endTime));
+    }
     lines.push('SUMMARY:'+(ev.title||''));
-    if(cat)lines.push('CATEGORIES:'+cat.l);
-    if(ev.memo)lines.push('DESCRIPTION:'+(ev.memo||'').replace(/\n/g,'\\n'));
-    const repMap={daily:'DAILY',weekly:'WEEKLY',monthly:'MONTHLY',yearly:'YEARLY'};
-    if(ev.repeat&&repMap[ev.repeat])lines.push('RRULE:FREQ='+repMap[ev.repeat]);
+    if (cat) lines.push('CATEGORIES:'+cat.l);
+    if (ev.memo) lines.push('DESCRIPTION:'+(ev.memo||'').replace(/\n/g, '\\n'));
+    const repMap = {daily:'DAILY',weekly:'WEEKLY',monthly:'MONTHLY',yearly:'YEARLY'};
+    if (ev.repeat && repMap[ev.repeat]) lines.push('RRULE:FREQ='+repMap[ev.repeat]);
     lines.push('END:VEVENT');
   });
   lines.push('END:VCALENDAR');
-  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='팀스케줄_'+dStr(new Date())+'.ics';
+  const blob = new Blob([lines.join('\r\n')], {type:'text/calendar;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '팀스케줄_'+dStr(new Date())+'.ics';
   a.click();
-};
+}
 
 /* ─────────────────────────────────
-   Touch Swipe
-───────────────────────────────── */
-let tsX=0,tsY=0,tMoved=false;
-const calEl=document.getElementById('cal');
-calEl.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;tMoved=false;},{passive:true});
-calEl.addEventListener('touchmove',e=>{if(e.touches.length!==1)return;if(Math.abs(e.touches[0].clientX-tsX)>8||Math.abs(e.touches[0].clientY-tsY)>8)tMoved=true;},{passive:true});
-calEl.addEventListener('touchend',e=>{
-  if(e.changedTouches.length!==1)return;
-  const dx=e.changedTouches[0].clientX-tsX, dy=Math.abs(e.changedTouches[0].clientY-tsY), adx=Math.abs(dx);
-  if(adx>55&&dy<45){nav(dx<0?1:-1);return;}
-  if(!tMoved&&curView==='week'){
-    let lane=e.target;
-    while(lane&&!lane.dataset.date)lane=lane.parentElement;
-    if(lane&&lane.dataset.date)openNewEventOnDate(lane.dataset.date);
-  }
-},{passive:true});
-
-/* ─────────────────────────────────
-   Keyboard / Click outside
-───────────────────────────────── */
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closePopup();closeEvModal();closeMemModal();closeSearch();}
-});
-document.addEventListener('click',e=>{
-  const p=document.getElementById('popup');
-  if(p.classList.contains('on')&&!p.contains(e.target))closePopup();
-});
-
-/* ─────────────────────────────────
-   Theme Toggle
+   Theme
 ───────────────────────────────── */
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  localStorage.setItem('team_sched_theme', t);
+  localStorage.setItem('ts_theme', t);
   const btn = document.getElementById('theme-btn');
-  if(btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
+  if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
 }
-window.toggleTheme = () => {
-  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(cur === 'dark' ? 'light' : 'dark');
-};
-// 저장된 테마 복원
-applyTheme(localStorage.getItem('team_sched_theme') || 'dark');
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+}
 
-setInterval(()=>{if(curView==='week')renderWeek();},60000);
+/* ─────────────────────────────────
+   Touch / Keyboard
+───────────────────────────────── */
+let tsX = 0, tsY = 0, tMoved = false;
+document.addEventListener('DOMContentLoaded', () => {
+  const calEl = document.getElementById('cal');
+  if (!calEl) return;
+  calEl.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; tMoved = false;
+  }, {passive: true});
+  calEl.addEventListener('touchmove', e => {
+    if (e.touches.length !== 1) return;
+    if (Math.abs(e.touches[0].clientX - tsX) > 8 || Math.abs(e.touches[0].clientY - tsY) > 8) tMoved = true;
+  }, {passive: true});
+  calEl.addEventListener('touchend', e => {
+    if (e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - tsX;
+    const dy = Math.abs(e.changedTouches[0].clientY - tsY);
+    if (Math.abs(dx) > 55 && dy < 45) { nav(dx < 0 ? 1 : -1); return; }
+    if (!tMoved && curView === 'week') {
+      let lane = e.target;
+      while (lane && !lane.dataset.date) lane = lane.parentElement;
+      if (lane && lane.dataset.date) openNewEventOnDate(lane.dataset.date);
+    }
+  }, {passive: true});
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closePopup(); closeEvModal(); closeMemberModal(); closeSearch();
+  }
+});
+document.addEventListener('click', e => {
+  const popup = document.getElementById('popup');
+  if (popup && popup.classList.contains('on') && !popup.contains(e.target)) closePopup();
+});
+
+setInterval(() => { if (curView === 'week') renderWeek(); }, 60000);
+
+/* ─────────────────────────────────
+   부팅
+───────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  // Firebase 초기화
+  try {
+    firebase.initializeApp(FB_CFG);
+    db = firebase.database();
+  } catch(e) {
+    console.error('Firebase 초기화 실패:', e);
+    toast('Firebase 연결 실패: ' + e.message, 'err');
+    document.getElementById('loading').classList.add('hidden');
+    return;
+  }
+
+  applyTheme(localStorage.getItem('ts_theme') || 'light');
+  buildYearOptions();
+  setView('month');
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('app').style.display = 'flex';
+  subscribeAll();
+});
 </script>
 </body>
 </html>
