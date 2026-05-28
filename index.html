@@ -733,13 +733,32 @@ input, select, textarea { cursor: text; }
 
 /* Member row in list */
 .mem-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 8px;
   border-radius: var(--r-sm);
   background: var(--bg);
   border: 1px solid var(--border);
   margin-bottom: 5px;
+  transition: box-shadow .15s, opacity .15s, background .12s;
+  user-select: none;
 }
+.mem-row.drag-over {
+  box-shadow: 0 0 0 2px var(--accent);
+  background: var(--accent-dim);
+}
+.mem-row.dragging { opacity: 0.4; }
+.mem-drag-handle {
+  color: var(--text-faint);
+  font-size: 13px;
+  cursor: grab;
+  padding: 2px 3px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color .1s;
+}
+.mem-drag-handle:hover { color: var(--text-muted); }
+.mem-drag-handle:active { cursor: grabbing; }
 .mem-row .dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
@@ -747,15 +766,31 @@ input, select, textarea { cursor: text; }
   flex: 1; font-size: 14px;
   color: var(--text); letter-spacing: -0.2px;
 }
-.mem-row button {
+.mem-order-btns {
+  display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;
+}
+.mem-ord-btn {
+  background: none; border: none;
+  color: var(--text-faint);
+  font-size: 9px; line-height: 1;
+  width: 20px; height: 14px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px;
+  transition: background .1s, color .1s;
+  padding: 0;
+}
+.mem-ord-btn:hover { background: var(--surface); color: var(--text); }
+.mem-ord-btn:disabled { opacity: 0.2; cursor: default; }
+.mem-row .mem-del-btn {
   background: none; border: none;
   color: var(--danger);
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 4px 7px;
   border-radius: var(--r-sm);
   transition: background .15s;
+  flex-shrink: 0;
 }
-.mem-row button:hover { background: var(--danger-dim); }
+.mem-row .mem-del-btn:hover { background: var(--danger-dim); }
 
 .empty-msg {
   text-align: center;
@@ -773,10 +808,12 @@ input, select, textarea { cursor: text; }
   cursor: pointer;
   transition: all .12s;
   border-left: 3px solid;
+  position: relative;
 }
 .day-ev-card:hover {
   background: var(--bg-elev2);
   box-shadow: var(--shadow-sm);
+  transform: translateX(2px);
 }
 .day-ev-title {
   font-size: 14px; font-weight: 600;
@@ -901,6 +938,25 @@ input, select, textarea { cursor: text; }
 ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: var(--r-pill); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
+/* Companion tags */
+.comp-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 600;
+  cursor: default;
+  transition: filter .1s;
+}
+.comp-tag .comp-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.2);
+  font-size: 9px; cursor: pointer; flex-shrink: 0;
+  line-height: 1;
+}
+.comp-tag .comp-x:hover { background: rgba(0,0,0,0.4); }
+
 @media print {
   #sidebar, #toolbar, #popup, #toast, #search-ov, #loading { display: none !important; }
   #main, #cal, #mv, .month-grid { overflow: visible !important; height: auto !important; }
@@ -1008,6 +1064,7 @@ input, select, textarea { cursor: text; }
     <div class="pp-row"><span class="pp-icon">📅</span><span id="pp-date"></span></div>
     <div class="pp-row" id="pp-time-r"><span class="pp-icon">🕐</span><span id="pp-time"></span></div>
     <div class="pp-row" id="pp-mem-r"><span class="pp-icon">👤</span><span id="pp-mem"></span></div>
+    <div class="pp-row" id="pp-comp-r"><span class="pp-icon">👥</span><span id="pp-comp" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"></span></div>
     <div class="pp-row" id="pp-cat-r"><span class="pp-icon">🏷</span><span id="pp-cat"></span></div>
     <div class="pp-row" id="pp-rep-r"><span class="pp-icon">🔁</span><span id="pp-rep"></span></div>
     <div class="pp-row" id="pp-memo-r"><span class="pp-icon">📝</span><span id="pp-memo"></span></div>
@@ -1042,7 +1099,7 @@ input, select, textarea { cursor: text; }
         </div>
         <div class="field">
           <label>담당자</label>
-          <select id="ev-member"></select>
+          <select id="ev-member" onchange="refreshCompanionSelect()"></select>
         </div>
       </div>
       <div class="fg2">
@@ -1055,6 +1112,15 @@ input, select, textarea { cursor: text; }
       <div class="fg2" id="time-area">
         <div class="field"><label>시작 시간</label><input id="ev-st" type="time" value="09:00"></div>
         <div class="field"><label>종료 시간</label><input id="ev-et" type="time" value="10:00"></div>
+      </div>
+      <div class="field">
+        <label>동행자</label>
+        <div id="ev-companions-wrap" style="display:flex;flex-direction:column;gap:6px">
+          <div id="ev-companions" style="display:flex;flex-wrap:wrap;gap:5px;min-height:32px;padding:6px 8px;border:1px solid var(--border-hi);border-radius:var(--r-md);background:var(--bg-elev);align-items:center"></div>
+          <select id="ev-companion-add" onchange="addCompanion(this.value);this.value=''" style="padding:8px 12px;border:1px solid var(--border-hi);border-radius:var(--r-md);font-size:14px;color:var(--text);background:var(--bg-elev);appearance:none;-webkit-appearance:none;outline:none">
+            <option value="">+ 동행자 추가...</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <label>반복</label>
@@ -1239,6 +1305,8 @@ function subscribeAll() {
     snap.forEach(child => {
       members.push({ id: child.key, ...child.val() });
     });
+    // order 필드 기준 정렬
+    members.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     renderSidebar();
     render();
     // 멤버 관리 모달이 열려있으면 목록 갱신
@@ -1308,6 +1376,55 @@ function renderSidebar() {
     ms.innerHTML = html;
     if (prev) ms.value = prev;
   }
+  // 동행자 추가 셀렉트
+  refreshCompanionSelect();
+}
+
+/* ─────────────────────────────────
+   Companion helpers
+───────────────────────────────── */
+function refreshCompanionSelect() {
+  const sel = document.getElementById('ev-companion-add');
+  if (!sel) return;
+  const existing = getSelectedCompanionIds();
+  const mainId = document.getElementById('ev-member')?.value || '';
+  sel.innerHTML = '<option value="">+ 동행자 추가...</option>';
+  members.forEach(m => {
+    if (m.id === mainId) return; // 담당자 제외
+    if (existing.includes(m.id)) return; // 이미 추가된 사람 제외
+    sel.innerHTML += `<option value="${m.id}">${esc(m.name)}</option>`;
+  });
+}
+
+function getSelectedCompanionIds() {
+  return Array.from(document.querySelectorAll('#ev-companions .comp-tag')).map(el => el.dataset.id);
+}
+
+function addCompanion(id) {
+  if (!id) return;
+  const m = getMember(id);
+  if (!m) return;
+  const wrap = document.getElementById('ev-companions');
+  const tag = document.createElement('div');
+  tag.className = 'comp-tag';
+  tag.dataset.id = id;
+  // 밝은 배경 + 진한 텍스트를 위해 색에 30% 알파 배경
+  tag.style.cssText = `background:${m.color}33;color:${m.color};border:1.5px solid ${m.color}66`;
+  tag.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block;flex-shrink:0"></span>${esc(m.name)}<span class="comp-x" onclick="removeCompanion('${id}')">✕</span>`;
+  wrap.appendChild(tag);
+  refreshCompanionSelect();
+}
+
+function removeCompanion(id) {
+  const tag = document.querySelector(`#ev-companions .comp-tag[data-id="${id}"]`);
+  if (tag) tag.remove();
+  refreshCompanionSelect();
+}
+
+function renderCompanionTags(companionIds) {
+  const wrap = document.getElementById('ev-companions');
+  wrap.innerHTML = '';
+  (companionIds || []).forEach(id => addCompanion(id));
 }
 
 function toggleMember(id) {
@@ -1431,6 +1548,8 @@ function renderMonth() {
     const dow = d.getDay();
     const dayEvs = events.filter(ev => isVisible(ev) && occursOn(ev, d))
       .sort((a,b) => (a.startTime||'00:00') > (b.startTime||'00:00') ? 1 : -1);
+    
+
     let cls = 'dc';
     if (isOther) cls += ' other';
     if (dow === 0) cls += ' sun';
@@ -1443,11 +1562,17 @@ function renderMonth() {
     dayEvs.slice(0, maxShow).forEach(ev => {
       const col = getEvColor(ev);
       const bg = getEvBg(ev);
-      chips += `<div class="ev-chip" style="color:${col};background:${bg};border-left:2px solid ${col}"
-        onclick="event.stopPropagation();showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
+      const compDots = (ev.companions||[]).map(id => {
+        const cm = getMember(id);
+        return cm ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${cm.color};margin-left:2px;flex-shrink:0;vertical-align:middle"></span>` : '';
+      }).join('');
+      chips += `<div class="ev-chip" style="color:${col};background:${bg};border-left:2px solid ${col};display:flex;align-items:center;gap:2px"
+        onclick="event.stopPropagation();showPopup('${ev.id}',event)"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.title)}</span>${compDots}</div>`;
     });
     const more = dayEvs.length - maxShow;
-    if (more > 0) chips += `<div class="more-lbl" onclick="event.stopPropagation();showDayEvents('${ds}')">+${more}개</div>`;
+    if (more > 0) {
+      chips += `<div class="more-lbl" onclick="event.stopPropagation();showDayEvents('${ds}')" style="font-weight:600">+${more}개</div>`;
+    }
     html += `<div class="${cls}" onclick="openNewEventOnDate('${ds}')">${dnHtml}${chips}</div>`;
   }
   grid.innerHTML = html;
@@ -1556,6 +1681,20 @@ function showPopup(id, e) {
   const memR = document.getElementById('pp-mem-r');
   if (mem) { memR.style.display = ''; document.getElementById('pp-mem').textContent = mem.name; }
   else memR.style.display = 'none';
+  // 동행자
+  const compR = document.getElementById('pp-comp-r');
+  const compIds = ev.companions || [];
+  const compMembers = compIds.map(id => getMember(id)).filter(Boolean);
+  if (compMembers.length > 0) {
+    compR.style.display = '';
+    document.getElementById('pp-comp').innerHTML = compMembers.map(m =>
+      `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;background:${m.color}33;color:${m.color};border:1.5px solid ${m.color}66;font-size:11px;font-weight:600">
+        <span style="width:6px;height:6px;border-radius:50%;background:${m.color};display:inline-block"></span>${esc(m.name)}
+      </span>`
+    ).join('');
+  } else {
+    compR.style.display = 'none';
+  }
   const catR = document.getElementById('pp-cat-r');
   if (cat) { catR.style.display = ''; document.getElementById('pp-cat').textContent = cat.i + ' ' + cat.l; }
   else catR.style.display = 'none';
@@ -1604,6 +1743,8 @@ function openNewEvent() {
   document.getElementById('ev-repeat').value = 'none';
   document.getElementById('ev-memo').value = '';
   document.getElementById('time-area').style.display = '';
+  renderCompanionTags([]);
+  refreshCompanionSelect();
   document.getElementById('ev-modal').classList.add('on');
   setTimeout(() => document.getElementById('ev-title').focus(), 200);
 }
@@ -1629,6 +1770,8 @@ function editEvent(id) {
   document.getElementById('ev-repeat').value = ev.repeat || 'none';
   document.getElementById('ev-memo').value = ev.memo || '';
   document.getElementById('time-area').style.display = ev.allday ? 'none' : '';
+  renderCompanionTags(ev.companions || []);
+  refreshCompanionSelect();
   closePopup();
   document.getElementById('ev-modal').classList.add('on');
 }
@@ -1640,10 +1783,13 @@ function saveEvent() {
   if (!title) { toast('제목을 입력하세요.', 'err'); return; }
   const sd = document.getElementById('ev-sd').value;
   const ed = document.getElementById('ev-ed').value || sd;
+  const companionEls = document.querySelectorAll('#ev-companions .comp-tag');
+  const companions = Array.from(companionEls).map(el => el.dataset.id);
   const ev = {
     title,
     cat: document.getElementById('ev-cat').value,
     memberId: document.getElementById('ev-member').value || '',
+    companions: companions,
     startDate: sd,
     endDate: ed,
     allday: document.getElementById('ev-allday').checked,
@@ -1689,6 +1835,7 @@ function showDayEvents(ds) {
       return (a.startTime||'00:00') > (b.startTime||'00:00') ? 1 : -1;
     });
 
+
   const listEl = document.getElementById('day-events-list');
   if (dayEvs.length === 0) {
     listEl.innerHTML = '<div class="empty-msg">이 날짜에 일정이 없습니다.</div>';
@@ -1702,8 +1849,15 @@ function showDayEvents(ds) {
       if (ev.allday) meta += '<span>종일</span>';
       else if (ev.startTime) meta += `<span>🕐 ${ev.startTime}</span>`;
       if (mem) meta += `<span class="day-ev-tag" style="background:${bg};color:${col}">👤 ${esc(mem.name)}</span>`;
+      // 동행자 배지
+      (ev.companions||[]).forEach(cid => {
+        const cm = getMember(cid);
+        if (cm) meta += `<span class="day-ev-tag" style="background:${cm.color}22;color:${cm.color};border:1px solid ${cm.color}44"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${cm.color};margin-right:2px;vertical-align:middle"></span>${esc(cm.name)}</span>`;
+      });
       if (cat) meta += `<span class="day-ev-tag" style="background:${cat.bg};color:${cat.c}">${cat.i} ${cat.l}</span>`;
-      return `<div class="day-ev-card" style="border-left-color:${col}" onclick="showPopup('${ev.id}',event);closeDayModal()">
+      
+      return `<div class="day-ev-card" style="border-left-color:${col}" 
+        onclick="event.stopPropagation();showPopup('${ev.id}',event);setTimeout(()=>closeDayModal(),100)">
         <div class="day-ev-title">${esc(ev.title)}</div>
         <div class="day-ev-meta">${meta}</div>
       </div>`;
@@ -1774,17 +1928,88 @@ function pickSwatch(i) { swIdx = i; renderSwatches(); }
 function renderMemberList() {
   const el = document.getElementById('mem-list');
   if (!el) return;
-  if (members.length === 0) {
+  // order 필드 기준 정렬 (없으면 0)
+  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
+  if (sorted.length === 0) {
     el.innerHTML = '<div class="empty-msg">등록된 팀원이 없습니다.</div>';
     return;
   }
-  el.innerHTML = members.map(m => `
-    <div class="mem-row">
+  el.innerHTML = sorted.map((m, idx) => `
+    <div class="mem-row" id="memrow-${m.id}" draggable="true" data-id="${m.id}">
+      <span class="mem-drag-handle" title="드래그하여 순서 변경">⠿</span>
       <div class="dot" style="background:${m.color}"></div>
       <div class="name">${esc(m.name)}</div>
-      <button onclick="removeMember('${m.id}','${esc(m.name)}')">삭제</button>
+      <div class="mem-order-btns">
+        <button class="mem-ord-btn" onclick="moveMemberOrder('${m.id}',-1)" ${idx===0?'disabled':''} title="위로">▲</button>
+        <button class="mem-ord-btn" onclick="moveMemberOrder('${m.id}',1)" ${idx===sorted.length-1?'disabled':''} title="아래로">▼</button>
+      </div>
+      <button class="mem-del-btn" onclick="removeMember('${m.id}','${esc(m.name)}')">삭제</button>
     </div>
   `).join('');
+  // 드래그&드롭 이벤트 연결
+  attachMemberDragEvents();
+}
+
+let _dragSrcId = null;
+
+function attachMemberDragEvents() {
+  const rows = document.querySelectorAll('#mem-list .mem-row');
+  rows.forEach(row => {
+    row.addEventListener('dragstart', e => {
+      _dragSrcId = row.dataset.id;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      document.querySelectorAll('#mem-list .mem-row').forEach(r => r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('#mem-list .mem-row').forEach(r => r.classList.remove('drag-over'));
+      if (row.dataset.id !== _dragSrcId) row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const targetId = row.dataset.id;
+      if (!_dragSrcId || _dragSrcId === targetId) return;
+      applyMemberReorder(_dragSrcId, targetId);
+    });
+  });
+}
+
+function applyMemberReorder(srcId, targetId) {
+  // order 기준 정렬된 현재 배열
+  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const srcIdx = sorted.findIndex(m => m.id === srcId);
+  const tgtIdx = sorted.findIndex(m => m.id === targetId);
+  if (srcIdx < 0 || tgtIdx < 0) return;
+  // 배열에서 src를 빼서 target 위치에 삽입
+  const [moved] = sorted.splice(srcIdx, 1);
+  sorted.splice(tgtIdx, 0, moved);
+  // 새 order 값 Firebase에 일괄 저장
+  saveMemberOrder(sorted);
+}
+
+function moveMemberOrder(id, dir) {
+  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const idx = sorted.findIndex(m => m.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= sorted.length) return;
+  [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
+  saveMemberOrder(sorted);
+}
+
+function saveMemberOrder(sortedArr) {
+  const updates = {};
+  sortedArr.forEach((m, i) => {
+    updates[`${ROOT}/members/${m.id}/order`] = i;
+  });
+  db.ref('/').update(updates)
+    .catch(e => toast('순서 저장 실패: ' + e.message, 'err'));
 }
 
 function addMember() {
@@ -1793,7 +2018,8 @@ function addMember() {
   if (!name) { toast('이름을 입력하세요.', 'err'); return; }
   if (!db) { toast('Firebase 연결 안됨', 'err'); return; }
 
-  const newMember = { name, color: COLORS[swIdx], hidden: false };
+  const maxOrder = members.reduce((mx, m) => Math.max(mx, m.order ?? 0), -1);
+  const newMember = { name, color: COLORS[swIdx], hidden: false, order: maxOrder + 1 };
   // Firebase에 저장 — onValue가 자동으로 목록 갱신
   db.ref(`${ROOT}/members`).push(newMember)
     .then(() => {
@@ -1899,6 +2125,19 @@ let tsX = 0, tsY = 0, tMoved = false;
 document.addEventListener('DOMContentLoaded', () => {
   const calEl = document.getElementById('cal');
   if (!calEl) return;
+  // 마우스 휠 / 트랙패드로 월/주 이동
+  let wheelTimer = null;
+  calEl.addEventListener('wheel', e => {
+    // 주뷰에서 시간 스크롤 영역 제외
+    if (curView === 'week') {
+      const wkBody = document.getElementById('wk-body');
+      if (wkBody && wkBody.contains(e.target)) return;
+    }
+    if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // 수평 스크롤 무시
+    e.preventDefault();
+    clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(() => { nav(e.deltaY > 0 ? 1 : -1); }, 80);
+  }, {passive: false});
   calEl.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
     tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; tMoved = false;
