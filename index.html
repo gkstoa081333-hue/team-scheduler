@@ -14,6 +14,8 @@
 <!-- Firebase v10 compat (최신 안정) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<!-- SheetJS (Excel 내보내기) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
 <style>
 /* ═══════════════════════════════════════
@@ -733,32 +735,13 @@ input, select, textarea { cursor: text; }
 
 /* Member row in list */
 .mem-row {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 8px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
   border-radius: var(--r-sm);
   background: var(--bg);
   border: 1px solid var(--border);
   margin-bottom: 5px;
-  transition: box-shadow .15s, opacity .15s, background .12s;
-  user-select: none;
 }
-.mem-row.drag-over {
-  box-shadow: 0 0 0 2px var(--accent);
-  background: var(--accent-dim);
-}
-.mem-row.dragging { opacity: 0.4; }
-.mem-drag-handle {
-  color: var(--text-faint);
-  font-size: 13px;
-  cursor: grab;
-  padding: 2px 3px;
-  border-radius: 4px;
-  line-height: 1;
-  flex-shrink: 0;
-  transition: color .1s;
-}
-.mem-drag-handle:hover { color: var(--text-muted); }
-.mem-drag-handle:active { cursor: grabbing; }
 .mem-row .dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
@@ -766,31 +749,15 @@ input, select, textarea { cursor: text; }
   flex: 1; font-size: 14px;
   color: var(--text); letter-spacing: -0.2px;
 }
-.mem-order-btns {
-  display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;
-}
-.mem-ord-btn {
-  background: none; border: none;
-  color: var(--text-faint);
-  font-size: 9px; line-height: 1;
-  width: 20px; height: 14px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 3px;
-  transition: background .1s, color .1s;
-  padding: 0;
-}
-.mem-ord-btn:hover { background: var(--surface); color: var(--text); }
-.mem-ord-btn:disabled { opacity: 0.2; cursor: default; }
-.mem-row .mem-del-btn {
+.mem-row button {
   background: none; border: none;
   color: var(--danger);
   font-size: 12px;
-  padding: 4px 7px;
+  padding: 4px 8px;
   border-radius: var(--r-sm);
   transition: background .15s;
-  flex-shrink: 0;
 }
-.mem-row .mem-del-btn:hover { background: var(--danger-dim); }
+.mem-row button:hover { background: var(--danger-dim); }
 
 .empty-msg {
   text-align: center;
@@ -832,6 +799,29 @@ input, select, textarea { cursor: text; }
   border-radius: 4px;
   font-weight: 500;
 }
+
+.mem-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .12s;
+}
+.mem-tag:hover {
+  background: var(--surface);
+}
+.mem-tag .dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.mem-tag-del {
+  font-size: 10px; color: var(--text-muted);
+  cursor: pointer;
+  margin-left: 2px;
+}
+.mem-tag-del:hover { color: var(--danger); }
 
 /* ═══════════════════════════════════════
    Toast
@@ -938,25 +928,6 @@ input, select, textarea { cursor: text; }
 ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: var(--r-pill); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
-/* Companion tags */
-.comp-tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px 3px 6px;
-  border-radius: var(--r-pill);
-  font-size: 12px; font-weight: 600;
-  cursor: default;
-  transition: filter .1s;
-}
-.comp-tag .comp-x {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.2);
-  font-size: 9px; cursor: pointer; flex-shrink: 0;
-  line-height: 1;
-}
-.comp-tag .comp-x:hover { background: rgba(0,0,0,0.4); }
-
 @media print {
   #sidebar, #toolbar, #popup, #toast, #search-ov, #loading { display: none !important; }
   #main, #cal, #mv, .month-grid { overflow: visible !important; height: auto !important; }
@@ -988,6 +959,7 @@ input, select, textarea { cursor: text; }
     <div id="cat-list"></div>
   </div>
   <div class="sb-foot">
+    <button class="sb-btn" onclick="openExcelExport()" style="border-color:rgba(48,209,88,0.4);color:rgba(48,209,88,0.95)">📊 엑셀 추출</button>
     <button class="sb-btn" onclick="exportICS()">↑ ICS 내보내기</button>
     <button class="sb-btn" onclick="window.print()">인쇄</button>
   </div>
@@ -1064,7 +1036,6 @@ input, select, textarea { cursor: text; }
     <div class="pp-row"><span class="pp-icon">📅</span><span id="pp-date"></span></div>
     <div class="pp-row" id="pp-time-r"><span class="pp-icon">🕐</span><span id="pp-time"></span></div>
     <div class="pp-row" id="pp-mem-r"><span class="pp-icon">👤</span><span id="pp-mem"></span></div>
-    <div class="pp-row" id="pp-comp-r"><span class="pp-icon">👥</span><span id="pp-comp" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"></span></div>
     <div class="pp-row" id="pp-cat-r"><span class="pp-icon">🏷</span><span id="pp-cat"></span></div>
     <div class="pp-row" id="pp-rep-r"><span class="pp-icon">🔁</span><span id="pp-rep"></span></div>
     <div class="pp-row" id="pp-memo-r"><span class="pp-icon">📝</span><span id="pp-memo"></span></div>
@@ -1099,7 +1070,10 @@ input, select, textarea { cursor: text; }
         </div>
         <div class="field">
           <label>담당자</label>
-          <select id="ev-member" onchange="refreshCompanionSelect()"></select>
+          <div id="ev-members-list" style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0"></div>
+          <select id="ev-member-sel" style="margin-top:6px" onchange="addEventMember(this.value)">
+            <option value="">+ 담당자 추가...</option>
+          </select>
         </div>
       </div>
       <div class="fg2">
@@ -1112,15 +1086,6 @@ input, select, textarea { cursor: text; }
       <div class="fg2" id="time-area">
         <div class="field"><label>시작 시간</label><input id="ev-st" type="time" value="09:00"></div>
         <div class="field"><label>종료 시간</label><input id="ev-et" type="time" value="10:00"></div>
-      </div>
-      <div class="field">
-        <label>동행자</label>
-        <div id="ev-companions-wrap" style="display:flex;flex-direction:column;gap:6px">
-          <div id="ev-companions" style="display:flex;flex-wrap:wrap;gap:5px;min-height:32px;padding:6px 8px;border:1px solid var(--border-hi);border-radius:var(--r-md);background:var(--bg-elev);align-items:center"></div>
-          <select id="ev-companion-add" onchange="addCompanion(this.value);this.value=''" style="padding:8px 12px;border:1px solid var(--border-hi);border-radius:var(--r-md);font-size:14px;color:var(--text);background:var(--bg-elev);appearance:none;-webkit-appearance:none;outline:none">
-            <option value="">+ 동행자 추가...</option>
-          </select>
-        </div>
       </div>
       <div class="field">
         <label>반복</label>
@@ -1138,6 +1103,35 @@ input, select, textarea { cursor: text; }
       <button class="btn btn-d" id="ev-del-btn" onclick="delCurEvent()" style="display:none">삭제</button>
       <button class="btn btn-o" onclick="closeEvModal()" style="margin-left:auto">취소</button>
       <button class="btn btn-p" onclick="saveEvent()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Excel Export Modal -->
+<div class="ov" id="excel-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="mh">
+      <h3>📊 엑셀 추출</h3>
+      <button class="mc-btn" onclick="closeExcelModal()">✕</button>
+    </div>
+    <div class="mb-section">
+      <div style="font-size:13px;color:var(--text-muted)">추출할 기간을 선택하세요.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-o" style="flex:1;font-size:13px;padding:8px" onclick="setExcelRange('thismonth')">이번 달</button>
+        <button class="btn btn-o" style="flex:1;font-size:13px;padding:8px" onclick="setExcelRange('lastmonth')">지난 달</button>
+        <button class="btn btn-o" style="flex:1;font-size:13px;padding:8px" onclick="setExcelRange('thisyear')">올해</button>
+      </div>
+      <div class="fg2">
+        <div class="field"><label>시작일</label><input id="excel-sd" type="date"></div>
+        <div class="field"><label>종료일</label><input id="excel-ed" type="date"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-faint);line-height:1.5">
+        📋 생성 시트: 요약 대시보드 · 전체 일정 · 팀원별 · 카테고리별
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-o" onclick="closeExcelModal()" style="margin-left:auto">취소</button>
+      <button class="btn btn-p" onclick="runExcelExport()">📊 추출하기</button>
     </div>
   </div>
 </div>
@@ -1247,6 +1241,7 @@ let swIdx = 0;
 let searchQ = '';
 let pwPassed = false; // 이 세션에서 비밀번호 통과 여부
 let dayModalDate = ''; // 날짜별 일정 모달용
+let curEventMembers = []; // 현재 편집 중인 일정의 담당자 배열
 
 /* ─────────────────────────────────
    유틸
@@ -1259,10 +1254,18 @@ function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()==
 function weekStart(d) { const w=new Date(d); w.setDate(d.getDate()-d.getDay()); return w; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getMember(id) { return members.find(m=>m.id===id) || null; }
-function getEvColor(ev) { const m=getMember(ev.memberId); return m ? m.color : (CATS[ev.cat]?.c || '#0071E3'); }
+function getEvMembers(ev) { 
+  const mems = (ev.memberIds || []).map(id => getMember(id)).filter(m => m);
+  return mems;
+}
+function getEvColor(ev) {
+  const mems = getEvMembers(ev);
+  if (mems.length > 0) return mems[0].color; // 첫 번째 담당자 색상
+  return (CATS[ev.cat]?.c || '#0071E3');
+}
 function getEvBg(ev) {
-  const m=getMember(ev.memberId);
-  if (m) return m.color + '22';
+  const mems = getEvMembers(ev);
+  if (mems.length > 0) return mems[0].color + '22';
   return CATS[ev.cat]?.bg || 'rgba(0,113,227,0.12)';
 }
 
@@ -1305,8 +1308,6 @@ function subscribeAll() {
     snap.forEach(child => {
       members.push({ id: child.key, ...child.val() });
     });
-    // order 필드 기준 정렬
-    members.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     renderSidebar();
     render();
     // 멤버 관리 모달이 열려있으면 목록 갱신
@@ -1376,55 +1377,6 @@ function renderSidebar() {
     ms.innerHTML = html;
     if (prev) ms.value = prev;
   }
-  // 동행자 추가 셀렉트
-  refreshCompanionSelect();
-}
-
-/* ─────────────────────────────────
-   Companion helpers
-───────────────────────────────── */
-function refreshCompanionSelect() {
-  const sel = document.getElementById('ev-companion-add');
-  if (!sel) return;
-  const existing = getSelectedCompanionIds();
-  const mainId = document.getElementById('ev-member')?.value || '';
-  sel.innerHTML = '<option value="">+ 동행자 추가...</option>';
-  members.forEach(m => {
-    if (m.id === mainId) return; // 담당자 제외
-    if (existing.includes(m.id)) return; // 이미 추가된 사람 제외
-    sel.innerHTML += `<option value="${m.id}">${esc(m.name)}</option>`;
-  });
-}
-
-function getSelectedCompanionIds() {
-  return Array.from(document.querySelectorAll('#ev-companions .comp-tag')).map(el => el.dataset.id);
-}
-
-function addCompanion(id) {
-  if (!id) return;
-  const m = getMember(id);
-  if (!m) return;
-  const wrap = document.getElementById('ev-companions');
-  const tag = document.createElement('div');
-  tag.className = 'comp-tag';
-  tag.dataset.id = id;
-  // 밝은 배경 + 진한 텍스트를 위해 색에 30% 알파 배경
-  tag.style.cssText = `background:${m.color}33;color:${m.color};border:1.5px solid ${m.color}66`;
-  tag.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block;flex-shrink:0"></span>${esc(m.name)}<span class="comp-x" onclick="removeCompanion('${id}')">✕</span>`;
-  wrap.appendChild(tag);
-  refreshCompanionSelect();
-}
-
-function removeCompanion(id) {
-  const tag = document.querySelector(`#ev-companions .comp-tag[data-id="${id}"]`);
-  if (tag) tag.remove();
-  refreshCompanionSelect();
-}
-
-function renderCompanionTags(companionIds) {
-  const wrap = document.getElementById('ev-companions');
-  wrap.innerHTML = '';
-  (companionIds || []).forEach(id => addCompanion(id));
 }
 
 function toggleMember(id) {
@@ -1548,7 +1500,6 @@ function renderMonth() {
     const dow = d.getDay();
     const dayEvs = events.filter(ev => isVisible(ev) && occursOn(ev, d))
       .sort((a,b) => (a.startTime||'00:00') > (b.startTime||'00:00') ? 1 : -1);
-    
 
     let cls = 'dc';
     if (isOther) cls += ' other';
@@ -1562,12 +1513,8 @@ function renderMonth() {
     dayEvs.slice(0, maxShow).forEach(ev => {
       const col = getEvColor(ev);
       const bg = getEvBg(ev);
-      const compDots = (ev.companions||[]).map(id => {
-        const cm = getMember(id);
-        return cm ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${cm.color};margin-left:2px;flex-shrink:0;vertical-align:middle"></span>` : '';
-      }).join('');
-      chips += `<div class="ev-chip" style="color:${col};background:${bg};border-left:2px solid ${col};display:flex;align-items:center;gap:2px"
-        onclick="event.stopPropagation();showPopup('${ev.id}',event)"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.title)}</span>${compDots}</div>`;
+      chips += `<div class="ev-chip" style="color:${col};background:${bg};border-left:2px solid ${col}"
+        onclick="event.stopPropagation();showPopup('${ev.id}',event)">${esc(ev.title)}</div>`;
     });
     const more = dayEvs.length - maxShow;
     if (more > 0) {
@@ -1668,7 +1615,7 @@ function showPopup(id, e) {
   if (!ev) return;
   popupId = id;
   const col = getEvColor(ev);
-  const mem = getMember(ev.memberId);
+  const mems = getEvMembers(ev);
   const cat = CATS[ev.cat];
   document.getElementById('pp-bar').style.background = col;
   document.getElementById('pp-title').textContent = ev.title || '';
@@ -1679,22 +1626,13 @@ function showPopup(id, e) {
   if (ev.allday) timeR.style.display = 'none';
   else { timeR.style.display = ''; document.getElementById('pp-time').textContent = (ev.startTime||'') + ' – ' + (ev.endTime||''); }
   const memR = document.getElementById('pp-mem-r');
-  if (mem) { memR.style.display = ''; document.getElementById('pp-mem').textContent = mem.name; }
-  else memR.style.display = 'none';
-  // 동행자
-  const compR = document.getElementById('pp-comp-r');
-  const compIds = ev.companions || [];
-  const compMembers = compIds.map(id => getMember(id)).filter(Boolean);
-  if (compMembers.length > 0) {
-    compR.style.display = '';
-    document.getElementById('pp-comp').innerHTML = compMembers.map(m =>
-      `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;background:${m.color}33;color:${m.color};border:1.5px solid ${m.color}66;font-size:11px;font-weight:600">
-        <span style="width:6px;height:6px;border-radius:50%;background:${m.color};display:inline-block"></span>${esc(m.name)}
-      </span>`
+  if (mems.length > 0) { 
+    memR.style.display = ''; 
+    document.getElementById('pp-mem').innerHTML = mems.map((m,i) => 
+      `<span style="display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;background:${m.color}22;color:${m.color};font-weight:600;margin-right:4px;font-size:12px">${esc(m.name)}</span>`
     ).join('');
-  } else {
-    compR.style.display = 'none';
   }
+  else memR.style.display = 'none';
   const catR = document.getElementById('pp-cat-r');
   if (cat) { catR.style.display = ''; document.getElementById('pp-cat').textContent = cat.i + ' ' + cat.l; }
   else catR.style.display = 'none';
@@ -1727,13 +1665,67 @@ function delFromPopup() {
 /* ─────────────────────────────────
    Event CRUD
 ───────────────────────────────── */
+function renderMemberSelect() {
+  const sel = document.getElementById('ev-member-sel');
+  if (!sel) return;
+  const used = new Set(curEventMembers);
+  sel.innerHTML = '<option value="">+ 담당자 추가...</option>';
+  members.forEach(m => {
+    if (!used.has(m.id)) {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = esc(m.name);
+      sel.appendChild(opt);
+    }
+  });
+}
+
+function renderMemberTags(memberIds) {
+  curEventMembers = (memberIds || []).slice(); // 복사
+  const el = document.getElementById('ev-members-list');
+  if (!el) return;
+  if (curEventMembers.length === 0) {
+    el.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">미지정</span>';
+  } else {
+    el.innerHTML = curEventMembers.map(id => {
+      const m = getMember(id);
+      if (!m) return '';
+      return `<div class="mem-tag" style="border-color:${m.color};background:${m.color}08">
+        <div class="dot" style="background:${m.color}"></div>
+        <span>${esc(m.name)}</span>
+        <span class="mem-tag-del" onclick="removeEventMember('${id}')">✕</span>
+      </div>`;
+    }).join('');
+  }
+  renderMemberSelect();
+}
+
+function removeEventMember(id) {
+  curEventMembers = curEventMembers.filter(x => x !== id);
+  renderMemberTags(curEventMembers);
+}
+
+function addEventMember(id) {
+  if (!id) return;
+  if (!curEventMembers.includes(id)) {
+    curEventMembers.push(id);
+    renderMemberTags(curEventMembers);
+  }
+  document.getElementById('ev-member-sel').value = '';
+}
+
+/* ─────────────────────────────────
+   Event CRUD (모달 열기/저장/삭제)
+───────────────────────────────── */
 function openNewEvent() {
   editId = null;
   document.getElementById('ev-modal-title').textContent = '새 일정';
   document.getElementById('ev-del-btn').style.display = 'none';
   document.getElementById('ev-title').value = '';
   document.getElementById('ev-cat').value = 'education';
-  document.getElementById('ev-member').value = '';
+  document.getElementById('ev-member-sel').value = '';
+  renderMemberSelect();
+  renderMemberTags([]);
   const ds = dStr(curDate);
   document.getElementById('ev-sd').value = ds;
   document.getElementById('ev-ed').value = ds;
@@ -1743,8 +1735,6 @@ function openNewEvent() {
   document.getElementById('ev-repeat').value = 'none';
   document.getElementById('ev-memo').value = '';
   document.getElementById('time-area').style.display = '';
-  renderCompanionTags([]);
-  refreshCompanionSelect();
   document.getElementById('ev-modal').classList.add('on');
   setTimeout(() => document.getElementById('ev-title').focus(), 200);
 }
@@ -1761,7 +1751,9 @@ function editEvent(id) {
   document.getElementById('ev-del-btn').style.display = '';
   document.getElementById('ev-title').value = ev.title || '';
   document.getElementById('ev-cat').value = ev.cat || 'education';
-  document.getElementById('ev-member').value = ev.memberId || '';
+  document.getElementById('ev-member-sel').value = '';
+  renderMemberSelect();
+  renderMemberTags(ev.memberIds || []);
   document.getElementById('ev-sd').value = ev.startDate || '';
   document.getElementById('ev-ed').value = ev.endDate || ev.startDate || '';
   document.getElementById('ev-allday').checked = !!ev.allday;
@@ -1770,8 +1762,6 @@ function editEvent(id) {
   document.getElementById('ev-repeat').value = ev.repeat || 'none';
   document.getElementById('ev-memo').value = ev.memo || '';
   document.getElementById('time-area').style.display = ev.allday ? 'none' : '';
-  renderCompanionTags(ev.companions || []);
-  refreshCompanionSelect();
   closePopup();
   document.getElementById('ev-modal').classList.add('on');
 }
@@ -1783,13 +1773,10 @@ function saveEvent() {
   if (!title) { toast('제목을 입력하세요.', 'err'); return; }
   const sd = document.getElementById('ev-sd').value;
   const ed = document.getElementById('ev-ed').value || sd;
-  const companionEls = document.querySelectorAll('#ev-companions .comp-tag');
-  const companions = Array.from(companionEls).map(el => el.dataset.id);
   const ev = {
     title,
     cat: document.getElementById('ev-cat').value,
-    memberId: document.getElementById('ev-member').value || '',
-    companions: companions,
+    memberIds: curEventMembers || [], // 여러 담당자
     startDate: sd,
     endDate: ed,
     allday: document.getElementById('ev-allday').checked,
@@ -1835,7 +1822,6 @@ function showDayEvents(ds) {
       return (a.startTime||'00:00') > (b.startTime||'00:00') ? 1 : -1;
     });
 
-
   const listEl = document.getElementById('day-events-list');
   if (dayEvs.length === 0) {
     listEl.innerHTML = '<div class="empty-msg">이 날짜에 일정이 없습니다.</div>';
@@ -1843,19 +1829,14 @@ function showDayEvents(ds) {
     listEl.innerHTML = dayEvs.map(ev => {
       const col = getEvColor(ev);
       const bg = getEvBg(ev);
-      const mem = getMember(ev.memberId);
+      const mems = getEvMembers(ev);
       const cat = CATS[ev.cat];
       let meta = '';
       if (ev.allday) meta += '<span>종일</span>';
       else if (ev.startTime) meta += `<span>🕐 ${ev.startTime}</span>`;
-      if (mem) meta += `<span class="day-ev-tag" style="background:${bg};color:${col}">👤 ${esc(mem.name)}</span>`;
-      // 동행자 배지
-      (ev.companions||[]).forEach(cid => {
-        const cm = getMember(cid);
-        if (cm) meta += `<span class="day-ev-tag" style="background:${cm.color}22;color:${cm.color};border:1px solid ${cm.color}44"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${cm.color};margin-right:2px;vertical-align:middle"></span>${esc(cm.name)}</span>`;
-      });
+      mems.forEach(m => meta += `<span class="day-ev-tag" style="background:${m.color}22;color:${m.color};border:1px solid ${m.color}33">👤 ${esc(m.name)}</span>`);
       if (cat) meta += `<span class="day-ev-tag" style="background:${cat.bg};color:${cat.c}">${cat.i} ${cat.l}</span>`;
-      
+
       return `<div class="day-ev-card" style="border-left-color:${col}" 
         onclick="event.stopPropagation();showPopup('${ev.id}',event);setTimeout(()=>closeDayModal(),100)">
         <div class="day-ev-title">${esc(ev.title)}</div>
@@ -1928,88 +1909,17 @@ function pickSwatch(i) { swIdx = i; renderSwatches(); }
 function renderMemberList() {
   const el = document.getElementById('mem-list');
   if (!el) return;
-  // order 필드 기준 정렬 (없으면 0)
-  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
-  if (sorted.length === 0) {
+  if (members.length === 0) {
     el.innerHTML = '<div class="empty-msg">등록된 팀원이 없습니다.</div>';
     return;
   }
-  el.innerHTML = sorted.map((m, idx) => `
-    <div class="mem-row" id="memrow-${m.id}" draggable="true" data-id="${m.id}">
-      <span class="mem-drag-handle" title="드래그하여 순서 변경">⠿</span>
+  el.innerHTML = members.map(m => `
+    <div class="mem-row">
       <div class="dot" style="background:${m.color}"></div>
       <div class="name">${esc(m.name)}</div>
-      <div class="mem-order-btns">
-        <button class="mem-ord-btn" onclick="moveMemberOrder('${m.id}',-1)" ${idx===0?'disabled':''} title="위로">▲</button>
-        <button class="mem-ord-btn" onclick="moveMemberOrder('${m.id}',1)" ${idx===sorted.length-1?'disabled':''} title="아래로">▼</button>
-      </div>
-      <button class="mem-del-btn" onclick="removeMember('${m.id}','${esc(m.name)}')">삭제</button>
+      <button onclick="removeMember('${m.id}','${esc(m.name)}')">삭제</button>
     </div>
   `).join('');
-  // 드래그&드롭 이벤트 연결
-  attachMemberDragEvents();
-}
-
-let _dragSrcId = null;
-
-function attachMemberDragEvents() {
-  const rows = document.querySelectorAll('#mem-list .mem-row');
-  rows.forEach(row => {
-    row.addEventListener('dragstart', e => {
-      _dragSrcId = row.dataset.id;
-      row.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    row.addEventListener('dragend', () => {
-      row.classList.remove('dragging');
-      document.querySelectorAll('#mem-list .mem-row').forEach(r => r.classList.remove('drag-over'));
-    });
-    row.addEventListener('dragover', e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      document.querySelectorAll('#mem-list .mem-row').forEach(r => r.classList.remove('drag-over'));
-      if (row.dataset.id !== _dragSrcId) row.classList.add('drag-over');
-    });
-    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
-    row.addEventListener('drop', e => {
-      e.preventDefault();
-      row.classList.remove('drag-over');
-      const targetId = row.dataset.id;
-      if (!_dragSrcId || _dragSrcId === targetId) return;
-      applyMemberReorder(_dragSrcId, targetId);
-    });
-  });
-}
-
-function applyMemberReorder(srcId, targetId) {
-  // order 기준 정렬된 현재 배열
-  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
-  const srcIdx = sorted.findIndex(m => m.id === srcId);
-  const tgtIdx = sorted.findIndex(m => m.id === targetId);
-  if (srcIdx < 0 || tgtIdx < 0) return;
-  // 배열에서 src를 빼서 target 위치에 삽입
-  const [moved] = sorted.splice(srcIdx, 1);
-  sorted.splice(tgtIdx, 0, moved);
-  // 새 order 값 Firebase에 일괄 저장
-  saveMemberOrder(sorted);
-}
-
-function moveMemberOrder(id, dir) {
-  const sorted = [...members].sort((a, b) => (a.order || 0) - (b.order || 0));
-  const idx = sorted.findIndex(m => m.id === id);
-  const swapIdx = idx + dir;
-  if (swapIdx < 0 || swapIdx >= sorted.length) return;
-  [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
-  saveMemberOrder(sorted);
-}
-
-function saveMemberOrder(sortedArr) {
-  const updates = {};
-  sortedArr.forEach((m, i) => {
-    updates[`${ROOT}/members/${m.id}/order`] = i;
-  });
-  db.ref('/').update(updates)
-    .catch(e => toast('순서 저장 실패: ' + e.message, 'err'));
 }
 
 function addMember() {
@@ -2018,8 +1928,7 @@ function addMember() {
   if (!name) { toast('이름을 입력하세요.', 'err'); return; }
   if (!db) { toast('Firebase 연결 안됨', 'err'); return; }
 
-  const maxOrder = members.reduce((mx, m) => Math.max(mx, m.order ?? 0), -1);
-  const newMember = { name, color: COLORS[swIdx], hidden: false, order: maxOrder + 1 };
+  const newMember = { name, color: COLORS[swIdx], hidden: false };
   // Firebase에 저장 — onValue가 자동으로 목록 갱신
   db.ref(`${ROOT}/members`).push(newMember)
     .then(() => {
@@ -2037,9 +1946,10 @@ function removeMember(id, name) {
   if (!confirm(`'${name}' 팀원을 삭제하시겠습니까?`)) return;
   db.ref(`${ROOT}/members/${id}`).remove()
     .then(() => {
-      // 해당 팀원의 일정에서 memberId 비우기
-      events.filter(e => e.memberId === id).forEach(e => {
-        db.ref(`${ROOT}/events/${e.id}/memberId`).set('');
+      // 해당 팀원의 일정에서 memberIds 배열에서 제거
+      events.filter(e => (e.memberIds||[]).includes(id)).forEach(e => {
+        const newIds = e.memberIds.filter(mid => mid !== id);
+        db.ref(`${ROOT}/events/${e.id}/memberIds`).set(newIds);
       });
       toast('팀원이 삭제되었습니다.');
     })
@@ -2062,6 +1972,187 @@ function closeSearch() {
 function doSearch(val) {
   searchQ = (val || '').trim().toLowerCase();
   render();
+}
+
+/* ─────────────────────────────────
+   Excel Export (SheetJS) - 고급
+───────────────────────────────── */
+function openExcelExport() {
+  setExcelRange('thismonth');
+  document.getElementById('excel-modal').classList.add('on');
+}
+function closeExcelModal() {
+  document.getElementById('excel-modal').classList.remove('on');
+}
+function setExcelRange(type) {
+  const now = new Date();
+  let sd, ed;
+  if (type === 'thismonth') {
+    sd = new Date(now.getFullYear(), now.getMonth(), 1);
+    ed = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  } else if (type === 'lastmonth') {
+    sd = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    ed = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (type === 'thisyear') {
+    sd = new Date(now.getFullYear(), 0, 1);
+    ed = new Date(now.getFullYear(), 11, 31);
+  }
+  document.getElementById('excel-sd').value = dStr(sd);
+  document.getElementById('excel-ed').value = dStr(ed);
+}
+
+// 기간 내 일정을 날짜별로 펼침 (반복 일정 포함)
+function expandEventsInRange(startStr, endStr) {
+  const start = pDate(startStr), end = pDate(endStr);
+  const result = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    events.forEach(ev => {
+      if (occursOn(ev, cur)) {
+        result.push({ ev, date: dStr(cur) });
+      }
+    });
+    cur.setDate(cur.getDate() + 1);
+  }
+  // 날짜 → 시간 순 정렬
+  result.sort((a,b) => {
+    const ka = a.date + (a.ev.allday ? '' : (a.ev.startTime||''));
+    const kb = b.date + (b.ev.allday ? '' : (b.ev.startTime||''));
+    return ka > kb ? 1 : (ka < kb ? -1 : 0);
+  });
+  return result;
+}
+
+function safeSheetName(name) {
+  // 31자 제한 + 금지문자 제거
+  let s = String(name).replace(/[\\/?*[\]:]/g, '').trim();
+  if (s.length > 31) s = s.slice(0, 31);
+  return s || 'Sheet';
+}
+
+function evToRow(item) {
+  const ev = item.ev;
+  const mems = getEvMembers(ev).map(m => m.name).join(', ');
+  const cat = CATS[ev.cat];
+  return {
+    '날짜': item.date,
+    '종일': ev.allday ? 'O' : '',
+    '시작시간': ev.allday ? '' : (ev.startTime || ''),
+    '종료시간': ev.allday ? '' : (ev.endTime || ''),
+    '제목': ev.title || '',
+    '카테고리': cat ? cat.l : (ev.cat || ''),
+    '담당자': mems,
+    '반복': REP[ev.repeat] || '없음',
+    '메모': ev.memo || ''
+  };
+}
+
+const EXCEL_HEADER = ['날짜','종일','시작시간','종료시간','제목','카테고리','담당자','반복','메모'];
+const EXCEL_COLS = [{wch:12},{wch:5},{wch:9},{wch:9},{wch:28},{wch:14},{wch:18},{wch:7},{wch:34}];
+
+function makeSheet(items) {
+  const rows = items.map(evToRow);
+  const ws = XLSX.utils.json_to_sheet(rows, { header: EXCEL_HEADER });
+  ws['!cols'] = EXCEL_COLS;
+  ws['!autofilter'] = { ref: `A1:I${rows.length+1}` };
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+  return ws;
+}
+
+function runExcelExport() {
+  if (typeof XLSX === 'undefined') { toast('엑셀 라이브러리 로딩 실패', 'err'); return; }
+  const sdStr = document.getElementById('excel-sd').value;
+  const edStr = document.getElementById('excel-ed').value;
+  if (!sdStr || !edStr) { toast('기간을 선택하세요.', 'err'); return; }
+  if (sdStr > edStr) { toast('시작일이 종료일보다 늦습니다.', 'err'); return; }
+
+  const items = expandEventsInRange(sdStr, edStr);
+  if (items.length === 0) { toast('해당 기간에 일정이 없습니다.', 'err'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  /* ── 1) 요약 대시보드 ── */
+  const total = items.length;
+  // 카테고리별 집계
+  const catCount = {};
+  for (const k in CATS) catCount[k] = 0;
+  items.forEach(it => { catCount[it.ev.cat] = (catCount[it.ev.cat]||0) + 1; });
+  // 팀원별 집계
+  const memCount = {};
+  members.forEach(m => memCount[m.id] = 0);
+  let noMem = 0;
+  items.forEach(it => {
+    const mems = getEvMembers(it.ev);
+    if (mems.length === 0) noMem++;
+    else mems.forEach(m => memCount[m.id] = (memCount[m.id]||0) + 1);
+  });
+
+  const summary = [];
+  summary.push(['팀 스케줄 요약 대시보드']);
+  summary.push([`기간: ${sdStr} ~ ${edStr}`]);
+  summary.push([`총 일정 수: ${total}건`]);
+  summary.push([]);
+  summary.push(['■ 카테고리별 집계']);
+  summary.push(['카테고리', '건수', '비율(%)']);
+  for (const k in CATS) {
+    if (catCount[k] > 0) {
+      summary.push([CATS[k].l, catCount[k], (catCount[k]/total*100).toFixed(1)]);
+    }
+  }
+  summary.push([]);
+  summary.push(['■ 팀원별 집계']);
+  summary.push(['팀원', '건수', '비율(%)']);
+  members.forEach(m => {
+    if (memCount[m.id] > 0) {
+      summary.push([m.name, memCount[m.id], (memCount[m.id]/total*100).toFixed(1)]);
+    }
+  });
+  if (noMem > 0) summary.push(['(담당자 미지정)', noMem, (noMem/total*100).toFixed(1)]);
+  summary.push([]);
+
+  // 팀원 × 카테고리 교차표
+  summary.push(['■ 팀원 × 카테고리 교차표']);
+  const catKeys = Object.keys(CATS).filter(k => catCount[k] > 0);
+  summary.push(['팀원', ...catKeys.map(k => CATS[k].l), '합계']);
+  members.forEach(m => {
+    const row = [m.name];
+    let sum = 0;
+    catKeys.forEach(k => {
+      const cnt = items.filter(it => it.ev.cat === k && getEvMembers(it.ev).some(mm => mm.id === m.id)).length;
+      row.push(cnt);
+      sum += cnt;
+    });
+    row.push(sum);
+    if (sum > 0) summary.push(row);
+  });
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+  wsSummary['!cols'] = [{wch:20},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, '요약 대시보드');
+
+  /* ── 2) 전체 일정 ── */
+  XLSX.utils.book_append_sheet(wb, makeSheet(items), '전체 일정');
+
+  /* ── 3) 팀원별 시트 ── */
+  members.forEach(m => {
+    const memItems = items.filter(it => getEvMembers(it.ev).some(mm => mm.id === m.id));
+    if (memItems.length > 0) {
+      XLSX.utils.book_append_sheet(wb, makeSheet(memItems), safeSheetName('👤' + m.name));
+    }
+  });
+
+  /* ── 4) 카테고리별 시트 ── */
+  for (const k in CATS) {
+    const catItems = items.filter(it => it.ev.cat === k);
+    if (catItems.length > 0) {
+      XLSX.utils.book_append_sheet(wb, makeSheet(catItems), safeSheetName(CATS[k].l));
+    }
+  }
+
+  const fname = `팀스케줄_${sdStr}_${edStr}.xlsx`;
+  XLSX.writeFile(wb, fname);
+  closeExcelModal();
+  toast(`엑셀 추출 완료 (${total}건)`);
 }
 
 /* ─────────────────────────────────
@@ -2122,22 +2213,10 @@ function toggleTheme() {
    Touch / Keyboard
 ───────────────────────────────── */
 let tsX = 0, tsY = 0, tMoved = false;
+let wheelLock = false;
 document.addEventListener('DOMContentLoaded', () => {
   const calEl = document.getElementById('cal');
   if (!calEl) return;
-  // 마우스 휠 / 트랙패드로 월/주 이동
-  let wheelTimer = null;
-  calEl.addEventListener('wheel', e => {
-    // 주뷰에서 시간 스크롤 영역 제외
-    if (curView === 'week') {
-      const wkBody = document.getElementById('wk-body');
-      if (wkBody && wkBody.contains(e.target)) return;
-    }
-    if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // 수평 스크롤 무시
-    e.preventDefault();
-    clearTimeout(wheelTimer);
-    wheelTimer = setTimeout(() => { nav(e.deltaY > 0 ? 1 : -1); }, 80);
-  }, {passive: false});
   calEl.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
     tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; tMoved = false;
@@ -2149,19 +2228,39 @@ document.addEventListener('DOMContentLoaded', () => {
   calEl.addEventListener('touchend', e => {
     if (e.changedTouches.length !== 1) return;
     const dx = e.changedTouches[0].clientX - tsX;
-    const dy = Math.abs(e.changedTouches[0].clientY - tsY);
-    if (Math.abs(dx) > 55 && dy < 45) { nav(dx < 0 ? 1 : -1); return; }
+    const dy = e.changedTouches[0].clientY - tsY;
+    // 가로 스와이프 → 이전/다음
+    if (Math.abs(dx) > 55 && Math.abs(dy) < 45) { nav(dx < 0 ? 1 : -1); return; }
+    // 세로 스와이프 → 월간뷰에서 이전/다음 달 (위로=다음, 아래로=이전)
+    if (curView === 'month' && Math.abs(dy) > 70 && Math.abs(dx) < 50) {
+      nav(dy < 0 ? 1 : -1);
+      return;
+    }
+    // 주간뷰 빈 영역 탭 → 새 일정
     if (!tMoved && curView === 'week') {
       let lane = e.target;
       while (lane && !lane.dataset.date) lane = lane.parentElement;
       if (lane && lane.dataset.date) openNewEventOnDate(lane.dataset.date);
     }
   }, {passive: true});
+
+  // 마우스 휠 → 월간뷰에서 이전/다음 달
+  const mv = document.getElementById('mv');
+  if (mv) {
+    mv.addEventListener('wheel', e => {
+      if (curView !== 'month') return;
+      if (Math.abs(e.deltaY) < 20) return;
+      if (wheelLock) return;
+      wheelLock = true;
+      nav(e.deltaY > 0 ? 1 : -1);
+      setTimeout(() => { wheelLock = false; }, 400);
+    }, {passive: true});
+  }
 });
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    closePopup(); closeEvModal(); closeMemberModal(); closeDayModal(); closeSearch();
+    closePopup(); closeEvModal(); closeMemberModal(); closeDayModal(); closeExcelModal(); closeSearch();
   }
 });
 document.addEventListener('click', e => {
@@ -2175,6 +2274,21 @@ setInterval(() => { if (curView === 'week') renderWeek(); }, 60000);
    부팅
 ───────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
+  // onclick 핸들러 전역 노출
+  Object.assign(window, {
+    toggleSidebar, closeSidebar, toggleMember, toggleCat,
+    nav, jumpYM, goToday, setView, toggleTheme,
+    openSearch, closeSearch, doSearch,
+    openNewEvent, openNewEventOnDate, editEvent, saveEvent, closeEvModal,
+    delCurEvent, toggleAllday,
+    showPopup, closePopup, editFromPopup, delFromPopup,
+    showDayEvents, closeDayModal,
+    addEventMember, removeEventMember,
+    openMemberManager, closeMemberModal, checkPw, pickSwatch,
+    addMember, removeMember, exportICS,
+    openExcelExport, closeExcelModal, setExcelRange, runExcelExport
+  });
+
   // Firebase 초기화
   try {
     firebase.initializeApp(FB_CFG);
